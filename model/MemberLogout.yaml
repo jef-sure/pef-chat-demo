@@ -1,0 +1,15 @@
+---
+params:
+  ip: $ip
+  auth: $auth_required
+  back_url:
+    default: headers.referer
+model: Member::logout
+result:
+  DEFAULT:
+    redirect:
+      - TT request.back_url
+      - /
+    unset-cookie: auth
+
+    

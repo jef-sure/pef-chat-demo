@@ -1,0 +1,23 @@
+{
+  "name": "app",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "webpack"
+  },
+  "dependencies": {
+    "history": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "redux": "latest",
+    "redux-thunk": "latest",
+    "markdown-it": "latest",
+    "markdown-it-emoji": "latest",
+    "markdown-it-ins": "latest",
+    "markdown-it-sup": "latest",
+    "markdown-it-sub": "latest",
+    "markdown-it-abbr": "latest",
+    "highlight.js": "latest",
+    "markdown-it-deflist": "latest",
+    "react-redux": "latest"
+  }
+}

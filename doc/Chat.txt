@@ -1,0 +1,27 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-01-09T15:27:04+01:00
+
+====== Chat ======
+
+===== chat load earlier =====
+
+===== chat send message =====
+
+===== chat edit message =====
+
+===== chat delete message =====
+
+===== chat join member =====
+
+===== chat leave member =====
+
+===== chat make =====
+
+===== chat delete =====
+
+===== chat set name =====
+
+===== chat set title =====
+
+

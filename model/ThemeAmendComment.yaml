@@ -1,0 +1,7 @@
+---
+params:
+  ip: $ip
+  auth: $auth_required
+  comment: $theme_comment
+  id: $id_to_comment
+model: Theme::amend_comment

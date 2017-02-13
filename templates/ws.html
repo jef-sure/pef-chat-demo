@@ -1,0 +1,54 @@
+<html>
+<head>
+</head>
+<body>
+	<h1>WebSocket</h1>
+	<div>
+		<p id="id_name"></p>
+	</div>
+	<input type="text" id="testo" />
+	<input type="button" value="invia" onClick="invia();" />
+	<div id="blackboard"
+		style="width: 640px; height: 480px; background-color: black; color: white; border: solid 2px red; overflow: auto">
+	</div>
+</body>
+<script language="Javascript">
+	var names = [ "Lemuel", "Ernie", "Jarred", "Bradford", "Emmanuel",
+			"Wilfredo", "Chuck", "Wilson", "Rolland", "Emil", ];
+	var name = names[Math.floor(Math.random() * names.length)];
+	document.getElementById('id_name').innerHTML = name;
+	var s = new WebSocket(
+			"ws://[% hostname %]:[% request.port %]/wsChat/default");
+	s.onopen = function() {
+		s.send(JSON.stringify({
+			text : "hello",
+			author : name
+		}));
+	};
+	s.onmessage = function(e) {
+		var bb = document.getElementById('blackboard');
+		var html = bb.innerHTML;
+		var message = JSON.parse(e.data);
+		bb.innerHTML = html + '<p><span>' + message.author + ': </span>'
+				+ '<span>' + message.text + '</span></p>';
+	};
+	s.onerror = function(e) {
+		var bb = document.getElementById('blackboard');
+		var html = bb.innerHTML;
+		bb.innerHTML = html + '<p>error</p>';
+	}
+	s.onclose = function(e) {
+		var bb = document.getElementById('blackboard');
+		var html = bb.innerHTML;
+		bb.innerHTML = html + '<p>closed</p>';
+	}
+	function invia() {
+		var value = document.getElementById('testo').value;
+		s.send(JSON.stringify({
+			author: name,
+			text: value
+		}));
+	}
+</script>
+
+</html>

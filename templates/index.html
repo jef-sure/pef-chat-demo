@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
+<title>Insert title here</title>
+<style type="text/css">
+@import url(http://fonts.googleapis.com/css?family=Roboto);
+</style>
+</head>
+<body>
+<script type="text/javascript">
+var websocketUrl = "ws[% IF scheme eq 'https' %]s[% END IF %]://[% hostname %]:[% request.port %]/wsWAjax";
+</script>
+[% member = "member info".model() -%]
+[% IF member.result eq 'OK' -%]
+<script type="text/javascript">
+var memberInfo = {
+	login: "[% member.login %]"
+}
+</script>
+[% END IF -%]
+	<div id="app"></div>
+</body>
+<script src="chat/main.js"></script>
+</html>

@@ -1,0 +1,7 @@
+---
+params:
+  ip: $ip
+  auth: $auth_required
+  id: $id_to_chat
+  name: $chat_name
+model: Chat::set_name

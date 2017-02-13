@@ -1,0 +1,7 @@
+---
+params:
+  ip: $ip
+  auth: $auth_required
+  id: $id_to_message
+  content: $message_content
+model: Chat::edit_message

@@ -1,0 +1,8 @@
+---
+params:
+  ip: $ip
+  auth: $auth_required
+  id: $id_to_chat
+  load_before: $iso_timestamp
+  limit: $limit
+model: Chat::set_name

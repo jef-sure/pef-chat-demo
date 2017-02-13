@@ -1,0 +1,7 @@
+---
+params:
+  ip: $ip
+  auth: $auth_required
+  id: $id_to_theme
+  body: $theme_body
+model: Theme::amend_body

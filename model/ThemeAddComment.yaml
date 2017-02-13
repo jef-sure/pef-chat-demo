@@ -1,0 +1,8 @@
+---
+params:
+  ip: $ip
+  auth: $auth_required
+  id: $id_to_theme
+  comment: $theme_comment
+  parent_comment_id: $id_to_comment_optional
+model: Theme::add_comment

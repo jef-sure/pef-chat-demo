@@ -1,0 +1,8 @@
+---
+params:
+  ip: $ip
+  auth: $auth_required
+  model_version:
+    base: positive_integer
+    optional: true
+model: Model::get_initial

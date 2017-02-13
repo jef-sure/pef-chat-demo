@@ -1,0 +1,35 @@
+header {
+  text-align: center;
+  font-size: 4em;
+  font-family: verdana;
+  vertical-align: middle;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden; }
+
+.teamname {
+  left: 0;
+  top: 0;
+  vertical-align: middle;
+  text-align: center; }
+
+.sysmsg {
+  right: 0;
+  top: 0;
+  display: inline-block;
+  float: right;
+  font-size: 10pt;
+  font-family: Helvetica; }
+
+header .key {
+  font-weight: bold; }
+
+header .value {
+  font-weight: bold;
+  color: red; }
+
+/*# sourceMappingURL=header.css.map */

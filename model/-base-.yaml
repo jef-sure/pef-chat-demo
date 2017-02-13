@@ -1,0 +1,76 @@
+---
+params:
+  ip:
+    value: context.ip
+  limit40str:
+    max-size: 40
+  limit4_40str:
+    min-size: 4
+    max-size: 40
+  email:
+    regex: ^[\w!#\$\%&*+=?{|}~^-]+(?:\.[\w\%&*+=?{|}~^-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}$
+    min-size: 7
+  lang:
+    default: context.lang
+    regex: ^[a-z]{2}$
+  auth:
+    default: cookies.auth
+    max-size: 40
+  auth_required:
+    base: auth
+    filter: Auth::required
+  id_to_chat:
+    base: positive_integer
+    filter: Chat::id_to_chat
+  id_to_message:
+    base: positive_integer
+    filter: Chat::id_to_message
+  chat_name: 
+    base: limit4_40str
+    filter: [ s/</&lt;/g, s/>/&gt;/g ]
+  chat_title:
+    max-size: 500
+    filter: [ s/</&lt;/g, s/>/&gt;/g ]
+  id_to_theme:
+    base: positive_integer
+    filter: Theme::id_to_theme
+  id_to_comment:
+    base: positive_integer
+    filter: Theme::id_to_comment
+  id_to_comment_optional:
+    base: positive_integer
+    filter: Theme::id_to_comment_optional
+  theme_subject:
+    max-size: 100
+    filter: [ s/</&lt;/g, s/>/&gt;/g ]
+  theme_body:
+    max-size: 4000
+    filter: [ s/</&lt;/g, s/>/&gt;/g ]
+  theme_comment:
+    max-size: 1000
+    filter: [ s/</&lt;/g, s/>/&gt;/g ]
+  message_content:
+    min-size: 1
+    max-size: 1000
+    filter: [ s/</&lt;/g, s/>/&gt;/g ]
+  iso_timestamp: ^(?:(?:\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z)|(?:\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?[+-]\d+(?::\d+)?)|(?:\d{8}T\d{6}Z))$
+  limit:
+    regex: ^\d+$        
+    max-size: 3
+  offset:
+    regex: ^\d+$
+    max-size: 10
+  positive_integer: ^\d+$
+  integer_or_empty: ^\d+$|^$
+  any_integer: ^$RE{num}{int}$
+  bool:
+    can_number: [0, 1]
+    default: 0
+  money: ^$RE{num}{decimal}{-places=>"0,2"}$
+# 
+expected:
+  - result: DEFAULT
+    answer:
+      ^optional: true
+    answer_args@:
+      ^optional: true

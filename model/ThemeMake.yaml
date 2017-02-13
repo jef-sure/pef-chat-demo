@@ -1,0 +1,7 @@
+---
+params:
+  ip: $ip
+  auth: $auth_required
+  subject: $theme_subject
+  body: $theme_body
+model: Theme::make

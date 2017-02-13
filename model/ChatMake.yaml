@@ -1,0 +1,7 @@
+---
+params:
+  ip: $ip
+  auth: $auth_required
+  name: $chat_name
+  title: $chat_title
+model: Chat::make

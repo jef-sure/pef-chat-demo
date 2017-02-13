@@ -1,0 +1,6 @@
+---
+params:
+  ip: $ip
+  auth: $auth_required
+  id: $id_to_chat
+model: Chat::leave_member

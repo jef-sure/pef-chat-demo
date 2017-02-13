@@ -1,0 +1,16 @@
+---
+params:
+  ip: $ip
+  login:
+      base: limit40str
+      min-size: 1
+  password: $limit4_40str
+model: Member::login
+result:
+  OK:
+    set-cookie:
+      auth:
+        value: TT response.auth
+        expires: TT response.expires
+  DEFAULT:
+    unset-cookie: auth

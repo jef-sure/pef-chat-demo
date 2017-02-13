@@ -1,0 +1,40 @@
+$main-bg-chat-color: #fffff8;
+$main-bg-color: #ffffee;
+$active-bg-color: #f0f0d0;
+$selected-bg-color: #cccc99;
+$main-font-family: sans-serif;
+$header-font-family: verdana;
+$list-next-font-size-3: 0.8em;
+$list-next-font-size-2: 0.9em;
+$list-next-font-size-1: 1em;
+$list-selected-font-size: 1.2em;
+$list-next-font-weight: normal;
+$list-selected-font-weight: bold;
+$gradient-bg-from: #ECECEC;
+$gradient-bg-to: #D1D1D1;
+$left-nav-width: 150px;
+$right-aside-width: 100px;
+$text-color: #333;
+
+//noinspection ALL
+:export {
+  mainBgChatColor: $main-bg-chat-color;
+  mainBgColor: $main-bg-color;
+  activeBgColor: $active-bg-color;
+  selectedBgColor: $selected-bg-color;
+  gradientBgFrom: $gradient-bg-from;
+  gradientBgTo: $gradient-bg-to;
+  textColor: $text-color;
+  mainFontFamily: $main-font-family;
+  headerFontFamily: $header-font-family;
+  listNextFontSize3: $list-next-font-size-3;
+  listNextFontSize2: $list-next-font-size-2;
+  listNextFontSize1: $list-next-font-size-1;
+  listSelectedFontSize: $list-selected-font-size;
+  listNextFontWeight: $list-next-font-weight;
+  listSelectedFontWeight: $list-selected-font-weight;
+  leftNavWidth: $left-nav-width;
+  rightAsideWidth: $right-aside-width;
+}
+
+

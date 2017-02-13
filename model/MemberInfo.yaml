@@ -1,0 +1,5 @@
+---
+params:
+  ip: $ip
+  auth: $auth_required
+model: Member::info

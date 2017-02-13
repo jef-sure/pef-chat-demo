@@ -1,0 +1,7 @@
+---
+params:
+  ip: $ip
+  login:
+      base: limit40str
+      min-size: 1
+model: Member::register

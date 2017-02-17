@@ -17,7 +17,7 @@ import hljs from 'highlight.js';
 
 import './style/highlight-dune-light.scss';
 import * as Constants from './actions/constants';
-import {initializeModel} from './actions/model';
+import {initializeModel, uninitializeModel} from './actions/model';
 import {consoleLog, consoleLogHide} from './actions/consoleLog';
 
 import wsAjax from './lib/wsAjax';
@@ -117,6 +117,9 @@ function websocketOnOpen(ws) {
         } else {
             lastWsError = response.body.answer;
             store.dispatch(consoleLog('error', response.body.answer));
+            if(response.body.result !== 'OK') {
+                websocketOnNotOk(response)
+            }
         }
     });
 }
@@ -137,10 +140,18 @@ function websocketOnMessage(message) {
     });
 }
 
+function websocketOnNotOk(message) {
+    console.log("not ok message: ", message);
+    if(message.body.result === 'AUTH') {
+        store.dispatch(uninitializeModel());
+        store.dispatch(consoleLog('error', 'User is logged out'));
+    }
+}
+
 store.subscribe(watchLoggedIn((newVal, oldVal, objectPath) => {
     console.log('%s changed from %s to %s', objectPath, oldVal, newVal);
     if (!oldVal && newVal) {
-        let ws = new wsAjax(websocketOnOpen, websocketOnError, websocketOnMessage);
+        let ws = new wsAjax(websocketOnOpen, websocketOnError, websocketOnMessage, websocketOnNotOk);
         ws.init();
     } else if (oldVal && !newVal) {
         let ws = new wsAjax();

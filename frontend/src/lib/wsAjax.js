@@ -1,13 +1,17 @@
+"use strict";
+import {encode_json, decode_json} from './json_utf8';
 let instance = null;
 
 export default class wsAjax {
-    constructor(onOpen, onError, onMessage) {
+    constructor(onOpen, onError, onMessage, onNotOk) {
         if (onOpen)
             this.onOpen = onOpen;
         if (onError)
             this.onError = onError;
         if (onMessage)
             this.onMessage = onMessage;
+        if (onNotOk)
+            this.onNotOk = onNotOk;
         if (!instance) {
             this.nextReconnect = 1;
             this.on = false;
@@ -54,11 +58,13 @@ export default class wsAjax {
             instance.onOpen(instance);
         };
         ws.onmessage = (e) => {
-            let response = JSON.parse(e.data);
+            let response = decode_json(e.data);
             if (response.rid && response.rid in instance.waitQueue) {
                 let cb = instance.waitQueue[response.rid].callback;
                 delete instance.waitQueue[response.rid];
-                if (cb) cb(response.ajax_response);
+                if (response.ajax_response.body.result !== 'OK' && instance.onNotOk)
+                    instance.onNotOk(response.ajax_response);
+                else if (cb) cb(response.ajax_response);
             } else {
                 if (instance.onMessage)
                     instance.onMessage(response);
@@ -95,6 +101,6 @@ export default class wsAjax {
         if (!instance.ws)
             instance.queue.push(rpc);
         else
-            instance.ws.send(JSON.stringify(rpc));
+            instance.ws.send(encode_json(rpc));
     }
 }

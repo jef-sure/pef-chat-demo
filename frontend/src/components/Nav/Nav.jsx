@@ -10,9 +10,10 @@ function navSubItems(model, key, path, selected) {
         <ul className="main_nav_sub_list">
             <li className="list_no_wraps_no_discs">{
                 model.map((item, index) =>
+
                     <Link key={index + (selected && item.id == selected ? "selected" : "item")}
-                        className={selected && item.id == selected ? "main_nav_selected_sub_item" : "main_nav_sub_item"}
-                        to={path + "/" + item.id}>
+                          className={selected && item.id == selected ? "main_nav_selected_sub_item" : "main_nav_sub_item"}
+                          to={path + "/" + item.id}>
                         {item[key]}
                     </Link>
                 )
@@ -63,20 +64,28 @@ const NavClear = (index) => () =>
 class Nav extends React.Component {
     constructor(props) {
         super(props);
+        this.maxNavString = navStruct.reduce((a, c) => c.name.length > a.length ? c.name : a) + "WW";
     }
 
     componentDidMount() {
-        this.calcMinWidth();
-        this.setMinWidth(this.minNavWidth + 'px');
+        this.recalcMinWidth();
     }
 
     componentDidUpdate() {
-        this.calcMinWidth();
+        this.recalcMinWidth();
     }
 
-    calcMinWidth() {
-        var maxNavString = "WWWWWWWWWWWWWWWWWWWWWWW";
-        this.minNavWidth = measureTextWidth(maxNavString, this.mainNav);
+    recalcMinWidth() {
+        const {model} = this.props;
+        for (let ns of navStruct) {
+            this.maxNavString = model[ns.modelKey].reduce(
+                    (a, c) => c[ns.titleKey].length > a.length ? c[ns.titleKey] : a,
+                    this.maxNavString
+                ) + "WWW";
+        }
+        this.minNavWidth = measureTextWidth(this.maxNavString, this.mainNav);
+        this.minNavWidth = Math.min(this.minNavWidth, document.documentElement.clientWidth / 3);
+        this.setMinWidth(this.minNavWidth + 'px');
     }
 
     getMinWidth() {

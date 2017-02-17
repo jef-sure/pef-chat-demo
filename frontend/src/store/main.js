@@ -13,6 +13,7 @@ export function initialStateStore() {
         visual: {
             isHeaderOn: true,
             isNavOn: true,
+            isChatMemberListOn: false,
         },
         system: {
             headerText: 'PEF Front Websocket Chat Demo'

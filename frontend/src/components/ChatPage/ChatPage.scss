@@ -408,16 +408,16 @@ html, body {
   white-space: nowrap;
 }
 
-.message_bullet_got {
+.message_bullet_received {
   color: darkgreen;
 }
 
-.message_bullet_sent {
+.message_bullet_sending {
   color: chocolate;
 }
 
-.message_bullet_ack {
-  color: green;
+.message_bullet_mine {
+  color: lightgreen;
 }
 
 .message_log {

@@ -83,13 +83,13 @@ sub process_ajax {
 	$request->path($path);
 	my $context = PEF::Front::Route::prepare_context($request, 'ajax');
 	$context->{parent_context} = $self->{_context};
-	print STDERR Dumper $message, $request, $context;
 	my $response = PEF::Front::Ajax::ajax($request, $context);
 	delete $message->{ajax};
 	$message->{ajax_response}{headers} = $response->[1];
 	$message->{ajax_response}{body} = decode_json join "", @{$response->[2]};
-	print STDERR Dumper $message;
-	$self->send(encode_json $message);
+	my $to_send = encode_json $message;
+	print STDERR "encoded: $to_send";
+	$self->send($to_send);
 }
 
 1;

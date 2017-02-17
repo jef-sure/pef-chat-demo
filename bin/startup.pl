@@ -4,6 +4,7 @@ use FindBin;
 use lib "$FindBin::Bin/../app";
 use lib "/home/anton/git/pef-chat-demo/app";
 use lib "/home/anton/git/pef-front-psgi-dist/lib";
+use lib "/home/anton/git/dbix-struct-github/lib";
 
 use ChatDemo::AppFrontConfig;
 use PEF::Front::Config;

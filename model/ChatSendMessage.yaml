@@ -3,5 +3,6 @@ params:
   ip: $ip
   auth: $auth_required
   id: $id_to_chat
-  content: $message_content
+  message: $message_content
+  uniq_client_id: ^[\d.]{1,40}$
 model: Chat::send_message

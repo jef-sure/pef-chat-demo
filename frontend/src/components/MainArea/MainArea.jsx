@@ -41,11 +41,13 @@ class MainArea extends React.Component {
     render() {
         const {dispatch, isNavOn} = this.props;
         return (<DivFlexStretchFill>
-                <LocationMatch if="/chat/:id" then={Chat} else={SelectChat}/>
-                <LocationMatch if="/theme/:id" then={Theme} else={SelectTheme}/>
-                <LocationMatch if="/member/:id" then={Member} else={SelectMember}/>
-                <LocationMatch if="/*/:id" else={SelectAny}/>
-                <LocationMatch if="/" exact={true} then={Select} thenProps={{area: "AnySection"}}/>
+
+                    <LocationMatch if="/chat/:id" then={Chat} else={SelectChat}/>
+                    <LocationMatch if="/theme/:id" then={Theme} else={SelectTheme}/>
+                    <LocationMatch if="/member/:id" then={Member} else={SelectMember}/>
+                    <LocationMatch if="/*/:id" else={SelectAny}/>
+                    <LocationMatch if="/" exact={true} then={Select} thenProps={{area: "AnySection"}}/>
+
             </DivFlexStretchFill>
         )
     }

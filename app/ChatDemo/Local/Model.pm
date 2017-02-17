@@ -28,7 +28,9 @@ sub get_initial {
 				if (grep {$context->{member}->id == $_} @{$chat->{member_list}}) {
 					push @{$response->{me}{chats}}, $chat->{id};
 					subscribe_to_queue($context, 'chat::' . $chat->{id}, 0);
-					$chat->{message_log} = chat_message_log($limit, $context->{chat}->id),;
+					$chat->{message_log} = chat_message_log($limit, $chat->{id});
+				} else {
+					$chat->{message_log} = [];
 				}
 			}
 			$response->{themes} = all_rows('theme', sub {$_->data});

@@ -116,11 +116,11 @@
 	
 	var _wsAjax2 = _interopRequireDefault(_wsAjax);
 	
-	var _Main = __webpack_require__(502);
+	var _Main = __webpack_require__(503);
 	
 	var _Main2 = _interopRequireDefault(_Main);
 	
-	var _reducer = __webpack_require__(530);
+	var _reducer = __webpack_require__(536);
 	
 	var _reducer2 = _interopRequireDefault(_reducer);
 	
@@ -209,6 +209,9 @@
 	        } else {
 	            lastWsError = response.body.answer;
 	            store.dispatch((0, _consoleLog.consoleLog)('error', response.body.answer));
+	            if (response.body.result !== 'OK') {
+	                websocketOnNotOk(response);
+	            }
 	        }
 	    });
 	}
@@ -228,15 +231,23 @@
 	    });
 	}
 	
+	function websocketOnNotOk(message) {
+	    console.log("not ok message: ", message);
+	    if (message.body.result === 'AUTH') {
+	        store.dispatch((0, _model.uninitializeModel)());
+	        store.dispatch((0, _consoleLog.consoleLog)('error', 'User is logged out'));
+	    }
+	}
+	
 	store.subscribe(watchLoggedIn(function (newVal, oldVal, objectPath) {
 	    console.log('%s changed from %s to %s', objectPath, oldVal, newVal);
 	    if (!oldVal && newVal) {
-	        var ws = new _wsAjax2.default(websocketOnOpen, websocketOnError, websocketOnMessage);
+	        var ws = new _wsAjax2.default(websocketOnOpen, websocketOnError, websocketOnMessage, websocketOnNotOk);
 	        ws.init();
 	    } else if (oldVal && !newVal) {
 	        var _ws = new _wsAjax2.default();
 	        _ws.close();
-	        store.dispatch(uninitializeModel());
+	        store.dispatch((0, _model.uninitializeModel)());
 	    }
 	}));
 	
@@ -53701,8 +53712,15 @@
 	var MODEL_INITIALIZE = exports.MODEL_INITIALIZE = 'MODEL INITIALIZE';
 	var MODEL_UNINITIALIZE = exports.MODEL_UNINITIALIZE = 'MODEL UNINITIALIZE';
 	
-	var CHAT_JOIN = exports.CHAT_JOIN = 'CHAT JOIN';
+	var CHAT_JOIN = exports.CHAT_JOIN = 'chat join member';
+	var CHAT_DATA = exports.CHAT_DATA = 'chat data';
+	var CHAT_ADD_MESSAGE = exports.CHAT_ADD_MESSAGE = 'CHAT ADD MESSAGE';
+	var CHAT_MESSAGE_FROM_SERVER = exports.CHAT_MESSAGE_FROM_SERVER = 'chat new message';
 	var CHAT_LEAVE = exports.CHAT_LEAVE = 'CHAT LEAVE';
+	
+	var MESSAGE_MINE = exports.MESSAGE_MINE = 'MESSAGE MINE';
+	var MESSAGE_MINE_SENDING = exports.MESSAGE_MINE_SENDING = 'MESSAGE MINE SENDING';
+	var MESSAGE_RECEIVED = exports.MESSAGE_RECEIVED = 'MESSAGE RECEIVED';
 	
 	var THEME_JOIN = exports.THEME_JOIN = 'THEME JOIN';
 	var THEME_LEAVE = exports.THEME_LEAVE = 'THEME LEAVE';
@@ -53714,6 +53732,7 @@
 	
 	var TOGGLE_HEADER = exports.TOGGLE_HEADER = 'TOGGLE HEADER';
 	var TOGGLE_NAV = exports.TOGGLE_NAV = 'TOGGLE NAV';
+	var TOGGLE_CHAT_MEMBER_LIST = exports.TOGGLE_CHAT_MEMBER_LIST = 'TOGGLE CHAT MEMBER LIST';
 
 /***/ },
 /* 474 */
@@ -55280,9 +55299,9 @@
 
 /***/ },
 /* 501 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -55290,17 +55309,20 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
+	var _json_utf = __webpack_require__(502);
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var instance = null;
 	
 	var wsAjax = function () {
-	    function wsAjax(onOpen, onError, onMessage) {
+	    function wsAjax(onOpen, onError, onMessage, onNotOk) {
 	        _classCallCheck(this, wsAjax);
 	
 	        if (onOpen) this.onOpen = onOpen;
 	        if (onError) this.onError = onError;
 	        if (onMessage) this.onMessage = onMessage;
+	        if (onNotOk) this.onNotOk = onNotOk;
 	        if (!instance) {
 	            this.nextReconnect = 1;
 	            this.on = false;
@@ -55347,11 +55369,11 @@
 	                instance.onOpen(instance);
 	            };
 	            ws.onmessage = function (e) {
-	                var response = JSON.parse(e.data);
+	                var response = (0, _json_utf.decode_json)(e.data);
 	                if (response.rid && response.rid in instance.waitQueue) {
 	                    var cb = instance.waitQueue[response.rid].callback;
 	                    delete instance.waitQueue[response.rid];
-	                    if (cb) cb(response.ajax_response);
+	                    if (response.ajax_response.body.result !== 'OK' && instance.onNotOk) instance.onNotOk(response.ajax_response);else if (cb) cb(response.ajax_response);
 	                } else {
 	                    if (instance.onMessage) instance.onMessage(response);
 	                }
@@ -55386,7 +55408,7 @@
 	                startTime: new Date(),
 	                callback: callback
 	            };
-	            if (!instance.ws) instance.queue.push(rpc);else instance.ws.send(JSON.stringify(rpc));
+	            if (!instance.ws) instance.queue.push(rpc);else instance.ws.send((0, _json_utf.encode_json)(rpc));
 	        }
 	    }]);
 	
@@ -55397,6 +55419,29 @@
 
 /***/ },
 /* 502 */
+/***/ function(module, exports) {
+
+	/**
+	 * Created by anton on 14.02.17.
+	 */
+	"use strict";
+	// from http://ecmanaut.blogspot.de/2006/07/encoding-decoding-utf8-in-javascript.html
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.encode_json = encode_json;
+	exports.decode_json = decode_json;
+	function encode_json(struct) {
+	    return unescape(encodeURIComponent(JSON.stringify(struct)));
+	}
+	
+	function decode_json(s) {
+	    return JSON.parse(decodeURIComponent(escape(s)));
+	}
+
+/***/ },
+/* 503 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -55413,15 +55458,15 @@
 	
 	var _reactRedux = __webpack_require__(199);
 	
-	var _LoginForm = __webpack_require__(503);
+	var _LoginForm = __webpack_require__(504);
 	
 	var _LoginForm2 = _interopRequireDefault(_LoginForm);
 	
-	var _EmptyPage = __webpack_require__(507);
+	var _EmptyPage = __webpack_require__(508);
 	
 	var _EmptyPage2 = _interopRequireDefault(_EmptyPage);
 	
-	var _ChatPage = __webpack_require__(508);
+	var _ChatPage = __webpack_require__(509);
 	
 	var _ChatPage2 = _interopRequireDefault(_ChatPage);
 	
@@ -55470,7 +55515,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToMain)(Main);
 
 /***/ },
-/* 503 */
+/* 504 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -55487,9 +55532,9 @@
 	
 	var _reactRedux = __webpack_require__(199);
 	
-	__webpack_require__(504);
+	__webpack_require__(505);
 	
-	var _login = __webpack_require__(506);
+	var _login = __webpack_require__(507);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -55588,13 +55633,13 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToLogin)(LoginForm);
 
 /***/ },
-/* 504 */
+/* 505 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(505);
+	var content = __webpack_require__(506);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(472)(content, {});
@@ -55614,7 +55659,7 @@
 	}
 
 /***/ },
-/* 505 */
+/* 506 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(471)();
@@ -55628,7 +55673,7 @@
 
 
 /***/ },
-/* 506 */
+/* 507 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -55684,7 +55729,7 @@
 	}
 
 /***/ },
-/* 507 */
+/* 508 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -55741,7 +55786,7 @@
 	exports.default = EmptyPage;
 
 /***/ },
-/* 508 */
+/* 509 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -55758,31 +55803,31 @@
 	
 	var _reactRedux = __webpack_require__(199);
 	
-	var _providesViewport = __webpack_require__(509);
+	var _providesViewport = __webpack_require__(510);
 	
 	var _providesViewport2 = _interopRequireDefault(_providesViewport);
 	
-	var _Header = __webpack_require__(510);
+	var _Header = __webpack_require__(511);
 	
 	var _Header2 = _interopRequireDefault(_Header);
 	
-	var _Toggle = __webpack_require__(513);
+	var _Toggle = __webpack_require__(514);
 	
 	var _Toggle2 = _interopRequireDefault(_Toggle);
 	
-	var _toggle = __webpack_require__(518);
+	var _toggle = __webpack_require__(519);
 	
-	__webpack_require__(519);
+	__webpack_require__(520);
 	
-	var _Nav = __webpack_require__(521);
+	var _Nav = __webpack_require__(522);
 	
 	var _Nav2 = _interopRequireDefault(_Nav);
 	
-	var _MainArea = __webpack_require__(526);
+	var _MainArea = __webpack_require__(527);
 	
 	var _MainArea2 = _interopRequireDefault(_MainArea);
 	
-	var _Layout = __webpack_require__(523);
+	var _Layout = __webpack_require__(524);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -55848,7 +55893,7 @@
 	exports.default = (0, _providesViewport2.default)((0, _reactRedux.connect)(mapStateToLogin)(ChatPage));
 
 /***/ },
-/* 509 */
+/* 510 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -55929,7 +55974,7 @@
 	}
 
 /***/ },
-/* 510 */
+/* 511 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -55946,17 +55991,17 @@
 	
 	var _reactRedux = __webpack_require__(199);
 	
-	__webpack_require__(511);
+	__webpack_require__(512);
 	
-	var _Toggle = __webpack_require__(513);
+	var _Toggle = __webpack_require__(514);
 	
 	var _Toggle2 = _interopRequireDefault(_Toggle);
 	
-	var _styleInc = __webpack_require__(516);
+	var _styleInc = __webpack_require__(517);
 	
 	var _styleInc2 = _interopRequireDefault(_styleInc);
 	
-	var _toggle = __webpack_require__(518);
+	var _toggle = __webpack_require__(519);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -56033,13 +56078,13 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToHeader)(Header);
 
 /***/ },
-/* 511 */
+/* 512 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(512);
+	var content = __webpack_require__(513);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(472)(content, {});
@@ -56059,7 +56104,7 @@
 	}
 
 /***/ },
-/* 512 */
+/* 513 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(471)();
@@ -56091,7 +56136,7 @@
 	};
 
 /***/ },
-/* 513 */
+/* 514 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -56108,7 +56153,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _Toggle = __webpack_require__(514);
+	var _Toggle = __webpack_require__(515);
 	
 	var _Toggle2 = _interopRequireDefault(_Toggle);
 	
@@ -56304,13 +56349,13 @@
 	exports.default = Toggle;
 
 /***/ },
-/* 514 */
+/* 515 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(515);
+	var content = __webpack_require__(516);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(472)(content, {});
@@ -56330,7 +56375,7 @@
 	}
 
 /***/ },
-/* 515 */
+/* 516 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(471)();
@@ -56344,13 +56389,13 @@
 
 
 /***/ },
-/* 516 */
+/* 517 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(517);
+	var content = __webpack_require__(518);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(472)(content, {});
@@ -56370,7 +56415,7 @@
 	}
 
 /***/ },
-/* 517 */
+/* 518 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(471)();
@@ -56402,7 +56447,7 @@
 	};
 
 /***/ },
-/* 518 */
+/* 519 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -56412,6 +56457,7 @@
 	});
 	exports.toggleHeader = toggleHeader;
 	exports.toggleNav = toggleNav;
+	exports.toggleChatMemberList = toggleChatMemberList;
 	
 	var _constants = __webpack_require__(473);
 	
@@ -56438,15 +56484,22 @@
 	        payload: !currentState
 	    };
 	}
+	
+	function toggleChatMemberList(currentState) {
+	    return {
+	        type: Constants.TOGGLE_CHAT_MEMBER_LIST,
+	        payload: !currentState
+	    };
+	}
 
 /***/ },
-/* 519 */
+/* 520 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(520);
+	var content = __webpack_require__(521);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(472)(content, {});
@@ -56466,7 +56519,7 @@
 	}
 
 /***/ },
-/* 520 */
+/* 521 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(471)();
@@ -56474,7 +56527,7 @@
 	
 	
 	// module
-	exports.push([module.id, "html, body {\n  height: 100%;\n  background-color: #ffffee;\n  padding: 0;\n  border: 0;\n  margin: 0; }\n\n#app {\n  height: 100%; }\n\n.full_height {\n  height: 100%; }\n\n.auto_height {\n  height: 100%; }\n\n.flex_column {\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-content: stretch;\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden; }\n\n.main_header {\n  min-height: 80px;\n  max-height: 80px;\n  height: 80px;\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden; }\n\n.flex_stretch {\n  padding: 0;\n  border: 0;\n  margin: 0;\n  align-self: stretch;\n  flex: 1 1 auto;\n  overflow: hidden;\n  position: relative; }\n\n.fill_abs {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: 0;\n  left: 0;\n  padding: 0;\n  border: 0;\n  margin: 0; }\n\n.flex_row {\n  display: flex;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-content: stretch;\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden;\n  height: 100%; }\n\n.flex_fixed {\n  flex: 0 0 auto; }\n\n.main_nav {\n  position: relative; }\n\n.main_nav_padding {\n  padding: 0.5em; }\n\n.padding_half_em {\n  padding: 0.5em; }\n\n.relative {\n  position: relative; }\n\n.list_no_wraps_no_discs {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  list-style: none; }\n\n.message_list {\n  overflow: hidden;\n  list-style: none;\n  margin-bottom: 0;\n  padding-left: 0;\n  word-wrap: break-word;\n  word-break: normal; }\n\n.message_list_message > p:first-child {\n  margin-bottom: 0;\n  display: inline; }\n\n.message_list_message {\n  display: inline; }\n\n.message_list_username {\n  font-weight: bold; }\n\n.message_list_time {\n  font-size: 0.93em; }\n\n.vscroll_auto {\n  overflow-y: auto; }\n\n.main_nav_tgl {\n  min-width: 1em;\n  max-width: 1em;\n  font-size: 1em;\n  align-self: stretch;\n  display: flex;\n  flex-direction: column;\n  height: 100%; }\n\n.main_nav_tgl_a {\n  text-align: center;\n  max-width: 1em;\n  display: block;\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:hover {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:visited {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:active {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:link {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_list {\n  list-style: none;\n  padding-left: 0.5em;\n  margin-bottom: 0; }\n\n.main_nav_sub_list {\n  list-style: none;\n  padding-left: 1em;\n  margin-bottom: 0; }\n\n.main_nav_section_next_3 {\n  font-size: 0.8em;\n  font-weight: normal;\n  display: block;\n  border-bottom: 1px solid #cccc99;\n  background: linear-gradient(to top, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_section_next_2 {\n  font-size: 0.9em;\n  font-weight: normal;\n  display: block;\n  border-bottom: 1px solid #cccc99;\n  background: linear-gradient(to top, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_section_next_1 {\n  font-size: 1em;\n  font-weight: normal;\n  display: block;\n  border-bottom: 1px solid #cccc99;\n  background: linear-gradient(to top, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_section_selected {\n  font-size: 1.2em;\n  font-weight: bold;\n  display: block;\n  border: 0;\n  background: linear-gradient(to bottom, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_selected_sub_item {\n  font-size: 1em;\n  font-weight: bold; }\n\n.main_nav_sub_item {\n  font-size: 1em;\n  font-weight: normal; }\n\n.flex_vr_start {\n  flex: 1 1 auto;\n  order: 1;\n  width: 1px;\n  background-color: #cccc99;\n  align-self: stretch;\n  margin-bottom: 0.25em;\n  margin-top: 0.25em; }\n\n.flex_vr_end {\n  flex: 1 1 auto;\n  order: 11;\n  width: 1px;\n  background-color: #cccc99;\n  align-self: stretch;\n  margin-bottom: 0.25em;\n  margin-top: 0.25em; }\n\n.flex_hr_start {\n  flex: 1 1 auto;\n  order: 1;\n  height: 1px;\n  background-color: #cccc99;\n  align-self: center;\n  margin-left: 0.25em;\n  margin-right: 0.25em;\n  margin-top: 1px; }\n\n.flex_hr_end {\n  flex: 1 1 auto;\n  order: 11;\n  height: 1px;\n  background-color: #cccc99;\n  align-self: center;\n  margin-left: 0.25em;\n  margin-right: 0.25em;\n  margin-top: 1px; }\n\n.flex_fixed_layout_first {\n  flex: 0 0 auto;\n  order: 1; }\n\n.flex_fixed_layout_second {\n  flex: 0 0 auto;\n  order: 2; }\n\n.flex_fixed_layout_five {\n  flex: 0 0 auto;\n  order: 5; }\n\n.flex_fixed_layout_nine {\n  flex: 0 0 auto;\n  order: 9; }\n\n.flex_fixed_layout_ten {\n  flex: 0 0 auto;\n  order: 10; }\n\n.flex_fixed_layout_eleven {\n  flex: 0 0 auto;\n  order: 11; }\n\n.main_header_tgl {\n  height: 1em;\n  max-height: 1em;\n  min-height: 1em;\n  display: flex;\n  flex-direction: row;\n  align-self: stretch;\n  margin-bottom: 0.3em; }\n\n.main_header_tgl_a {\n  height: 1em;\n  max-height: 1em;\n  min-height: 1em; }\n\n.main_header_tgl_a:hover {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_header_tgl_a:visited {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_header_tgl_a:active {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_header_tgl_a:link {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside {\n  min-width: 100px; }\n\n.main_aside_tgl {\n  min-width: 1em;\n  max-width: 1em;\n  font-size: 1em;\n  align-self: stretch;\n  display: flex;\n  flex-direction: column;\n  height: 100%; }\n\n.main_aside_tgl_a {\n  text-align: center;\n  max-width: 1em;\n  display: block;\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:hover {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:visited {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:active {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:link {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_display_area {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  max-height: 100%;\n  overflow-y: auto; }\n\n.table_custom {\n  display: table; }\n\n.table_row {\n  display: table-row; }\n\n.table_cell {\n  display: table-cell; }\n\n.time_padding {\n  padding: 2px 0.5em; }\n\n.vallign_top {\n  vertical-align: top; }\n\n.nowrap {\n  white-space: nowrap; }\n\n.message_bullet_got {\n  color: darkgreen; }\n\n.message_bullet_sent {\n  color: chocolate; }\n\n.message_bullet_ack {\n  color: green; }\n\n.message_log {\n  background-color: #fffff8; }\n\n.main_work_area_bottom textarea {\n  vertical-align: middle;\n  line-height: inherit;\n  font-family: inherit;\n  font-size: 1em;\n  padding-top: 0px;\n  padding-bottom: 0px;\n  width: 100%;\n  resize: none;\n  overflow-y: auto;\n  overflow-x: hidden;\n  box-sizing: border-box; }\n\n.main_work_area {\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-content: stretch;\n  height: 100%; }\n\n.main_work_area_bottom {\n  padding: 0.25em;\n  margin-left: 0;\n  margin-right: 0;\n  margin-top: 0;\n  margin-bottom: 0.1em;\n  border-top: 1px solid #cccc99;\n  overflow: hidden;\n  display: table;\n  width: 100%; }\n\n.table_max_cell_middle {\n  display: table-cell;\n  vertical-align: middle;\n  width: 100%; }\n\n.main_work_area_tabrow {\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden; }\n\n.orange {\n  color: #ffffee;\n  border: solid 1px #da7c0c;\n  background: #f78d1d;\n  background: -webkit-gradient(linear, left top, left bottom, from(#faa51a), to(#f47a20));\n  background: -moz-linear-gradient(top, #faa51a, #f47a20);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#faa51a', endColorstr='#f47a20'); }\n\n.orange:hover {\n  color: #ffffee;\n  background: #f47c20;\n  background: -webkit-gradient(linear, left top, left bottom, from(#f88e11), to(#f06015));\n  background: -moz-linear-gradient(top, #f88e11, #f06015);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f88e11', endColorstr='#f06015'); }\n\n.orange:active {\n  color: #ffffee;\n  background: -webkit-gradient(linear, left top, left bottom, from(#f47a20), to(#faa51a));\n  background: -moz-linear-gradient(top, #f47a20, #faa51a);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f47a20', endColorstr='#faa51a'); }\n", ""]);
+	exports.push([module.id, "html, body {\n  height: 100%;\n  background-color: #ffffee;\n  padding: 0;\n  border: 0;\n  margin: 0; }\n\n#app {\n  height: 100%; }\n\n.full_height {\n  height: 100%; }\n\n.auto_height {\n  height: 100%; }\n\n.flex_column {\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-content: stretch;\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden; }\n\n.main_header {\n  min-height: 80px;\n  max-height: 80px;\n  height: 80px;\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden; }\n\n.flex_stretch {\n  padding: 0;\n  border: 0;\n  margin: 0;\n  align-self: stretch;\n  flex: 1 1 auto;\n  overflow: hidden;\n  position: relative; }\n\n.fill_abs {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: 0;\n  left: 0;\n  padding: 0;\n  border: 0;\n  margin: 0; }\n\n.flex_row {\n  display: flex;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-content: stretch;\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden;\n  height: 100%; }\n\n.flex_fixed {\n  flex: 0 0 auto; }\n\n.main_nav {\n  position: relative; }\n\n.main_nav_padding {\n  padding: 0.5em; }\n\n.padding_half_em {\n  padding: 0.5em; }\n\n.relative {\n  position: relative; }\n\n.list_no_wraps_no_discs {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  list-style: none; }\n\n.message_list {\n  overflow: hidden;\n  list-style: none;\n  margin-bottom: 0;\n  padding-left: 0;\n  word-wrap: break-word;\n  word-break: normal; }\n\n.message_list_message > p:first-child {\n  margin-bottom: 0;\n  display: inline; }\n\n.message_list_message {\n  display: inline; }\n\n.message_list_username {\n  font-weight: bold; }\n\n.message_list_time {\n  font-size: 0.93em; }\n\n.vscroll_auto {\n  overflow-y: auto; }\n\n.main_nav_tgl {\n  min-width: 1em;\n  max-width: 1em;\n  font-size: 1em;\n  align-self: stretch;\n  display: flex;\n  flex-direction: column;\n  height: 100%; }\n\n.main_nav_tgl_a {\n  text-align: center;\n  max-width: 1em;\n  display: block;\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:hover {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:visited {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:active {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:link {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_list {\n  list-style: none;\n  padding-left: 0.5em;\n  margin-bottom: 0; }\n\n.main_nav_sub_list {\n  list-style: none;\n  padding-left: 1em;\n  margin-bottom: 0; }\n\n.main_nav_section_next_3 {\n  font-size: 0.8em;\n  font-weight: normal;\n  display: block;\n  border-bottom: 1px solid #cccc99;\n  background: linear-gradient(to top, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_section_next_2 {\n  font-size: 0.9em;\n  font-weight: normal;\n  display: block;\n  border-bottom: 1px solid #cccc99;\n  background: linear-gradient(to top, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_section_next_1 {\n  font-size: 1em;\n  font-weight: normal;\n  display: block;\n  border-bottom: 1px solid #cccc99;\n  background: linear-gradient(to top, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_section_selected {\n  font-size: 1.2em;\n  font-weight: bold;\n  display: block;\n  border: 0;\n  background: linear-gradient(to bottom, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_selected_sub_item {\n  font-size: 1em;\n  font-weight: bold; }\n\n.main_nav_sub_item {\n  font-size: 1em;\n  font-weight: normal; }\n\n.flex_vr_start {\n  flex: 1 1 auto;\n  order: 1;\n  width: 1px;\n  background-color: #cccc99;\n  align-self: stretch;\n  margin-bottom: 0.25em;\n  margin-top: 0.25em; }\n\n.flex_vr_end {\n  flex: 1 1 auto;\n  order: 11;\n  width: 1px;\n  background-color: #cccc99;\n  align-self: stretch;\n  margin-bottom: 0.25em;\n  margin-top: 0.25em; }\n\n.flex_hr_start {\n  flex: 1 1 auto;\n  order: 1;\n  height: 1px;\n  background-color: #cccc99;\n  align-self: center;\n  margin-left: 0.25em;\n  margin-right: 0.25em;\n  margin-top: 1px; }\n\n.flex_hr_end {\n  flex: 1 1 auto;\n  order: 11;\n  height: 1px;\n  background-color: #cccc99;\n  align-self: center;\n  margin-left: 0.25em;\n  margin-right: 0.25em;\n  margin-top: 1px; }\n\n.flex_fixed_layout_first {\n  flex: 0 0 auto;\n  order: 1; }\n\n.flex_fixed_layout_second {\n  flex: 0 0 auto;\n  order: 2; }\n\n.flex_fixed_layout_five {\n  flex: 0 0 auto;\n  order: 5; }\n\n.flex_fixed_layout_nine {\n  flex: 0 0 auto;\n  order: 9; }\n\n.flex_fixed_layout_ten {\n  flex: 0 0 auto;\n  order: 10; }\n\n.flex_fixed_layout_eleven {\n  flex: 0 0 auto;\n  order: 11; }\n\n.main_header_tgl {\n  height: 1em;\n  max-height: 1em;\n  min-height: 1em;\n  display: flex;\n  flex-direction: row;\n  align-self: stretch;\n  margin-bottom: 0.3em; }\n\n.main_header_tgl_a {\n  height: 1em;\n  max-height: 1em;\n  min-height: 1em; }\n\n.main_header_tgl_a:hover {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_header_tgl_a:visited {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_header_tgl_a:active {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_header_tgl_a:link {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside {\n  min-width: 100px; }\n\n.main_aside_tgl {\n  min-width: 1em;\n  max-width: 1em;\n  font-size: 1em;\n  align-self: stretch;\n  display: flex;\n  flex-direction: column;\n  height: 100%; }\n\n.main_aside_tgl_a {\n  text-align: center;\n  max-width: 1em;\n  display: block;\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:hover {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:visited {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:active {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:link {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_display_area {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  max-height: 100%;\n  overflow-y: auto; }\n\n.table_custom {\n  display: table; }\n\n.table_row {\n  display: table-row; }\n\n.table_cell {\n  display: table-cell; }\n\n.time_padding {\n  padding: 2px 0.5em; }\n\n.vallign_top {\n  vertical-align: top; }\n\n.nowrap {\n  white-space: nowrap; }\n\n.message_bullet_received {\n  color: darkgreen; }\n\n.message_bullet_sending {\n  color: chocolate; }\n\n.message_bullet_mine {\n  color: lightgreen; }\n\n.message_log {\n  background-color: #fffff8; }\n\n.main_work_area_bottom textarea {\n  vertical-align: middle;\n  line-height: inherit;\n  font-family: inherit;\n  font-size: 1em;\n  padding-top: 0px;\n  padding-bottom: 0px;\n  width: 100%;\n  resize: none;\n  overflow-y: auto;\n  overflow-x: hidden;\n  box-sizing: border-box; }\n\n.main_work_area {\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-content: stretch;\n  height: 100%; }\n\n.main_work_area_bottom {\n  padding: 0.25em;\n  margin-left: 0;\n  margin-right: 0;\n  margin-top: 0;\n  margin-bottom: 0.1em;\n  border-top: 1px solid #cccc99;\n  overflow: hidden;\n  display: table;\n  width: 100%; }\n\n.table_max_cell_middle {\n  display: table-cell;\n  vertical-align: middle;\n  width: 100%; }\n\n.main_work_area_tabrow {\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden; }\n\n.orange {\n  color: #ffffee;\n  border: solid 1px #da7c0c;\n  background: #f78d1d;\n  background: -webkit-gradient(linear, left top, left bottom, from(#faa51a), to(#f47a20));\n  background: -moz-linear-gradient(top, #faa51a, #f47a20);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#faa51a', endColorstr='#f47a20'); }\n\n.orange:hover {\n  color: #ffffee;\n  background: #f47c20;\n  background: -webkit-gradient(linear, left top, left bottom, from(#f88e11), to(#f06015));\n  background: -moz-linear-gradient(top, #f88e11, #f06015);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f88e11', endColorstr='#f06015'); }\n\n.orange:active {\n  color: #ffffee;\n  background: -webkit-gradient(linear, left top, left bottom, from(#f47a20), to(#faa51a));\n  background: -moz-linear-gradient(top, #f47a20, #faa51a);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f47a20', endColorstr='#faa51a'); }\n", ""]);
 	
 	// exports
 	exports.locals = {
@@ -56498,7 +56551,7 @@
 	};
 
 /***/ },
-/* 521 */
+/* 522 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -56515,11 +56568,11 @@
 	
 	var _reactRedux = __webpack_require__(199);
 	
-	var _measure_text_width = __webpack_require__(522);
+	var _measure_text_width = __webpack_require__(523);
 	
-	var _Layout = __webpack_require__(523);
+	var _Layout = __webpack_require__(524);
 	
-	var _HashRouter = __webpack_require__(524);
+	var _HashRouter = __webpack_require__(525);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -56623,25 +56676,64 @@
 	    function Nav(props) {
 	        _classCallCheck(this, Nav);
 	
-	        return _possibleConstructorReturn(this, (Nav.__proto__ || Object.getPrototypeOf(Nav)).call(this, props));
+	        var _this = _possibleConstructorReturn(this, (Nav.__proto__ || Object.getPrototypeOf(Nav)).call(this, props));
+	
+	        _this.maxNavString = navStruct.reduce(function (a, c) {
+	            return c.name.length > a.length ? c.name : a;
+	        }) + "WW";
+	        return _this;
 	    }
 	
 	    _createClass(Nav, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            this.calcMinWidth();
-	            this.setMinWidth(this.minNavWidth + 'px');
+	            this.recalcMinWidth();
 	        }
 	    }, {
 	        key: 'componentDidUpdate',
 	        value: function componentDidUpdate() {
-	            this.calcMinWidth();
+	            this.recalcMinWidth();
 	        }
 	    }, {
-	        key: 'calcMinWidth',
-	        value: function calcMinWidth() {
-	            var maxNavString = "WWWWWWWWWWWWWWWWWWWWWWW";
-	            this.minNavWidth = (0, _measure_text_width.measureTextWidth)(maxNavString, this.mainNav);
+	        key: 'recalcMinWidth',
+	        value: function recalcMinWidth() {
+	            var _this2 = this;
+	
+	            var model = this.props.model;
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+	
+	            try {
+	                var _loop = function _loop() {
+	                    var ns = _step.value;
+	
+	                    _this2.maxNavString = model[ns.modelKey].reduce(function (a, c) {
+	                        return c[ns.titleKey].length > a.length ? c[ns.titleKey] : a;
+	                    }, _this2.maxNavString) + "WWW";
+	                };
+	
+	                for (var _iterator = navStruct[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    _loop();
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator.return) {
+	                        _iterator.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+	
+	            this.minNavWidth = (0, _measure_text_width.measureTextWidth)(this.maxNavString, this.mainNav);
+	            this.minNavWidth = Math.min(this.minNavWidth, document.documentElement.clientWidth / 3);
+	            this.setMinWidth(this.minNavWidth + 'px');
 	        }
 	    }, {
 	        key: 'getMinWidth',
@@ -56656,14 +56748,14 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this2 = this;
+	            var _this3 = this;
 	
 	            var model = this.props.model;
 	
 	            return _react2.default.createElement(
 	                _Layout.DivFlexFixed,
 	                { className: 'relative', refProp: function refProp(e) {
-	                        return _this2.mainNav = e;
+	                        return _this3.mainNav = e;
 	                    } },
 	                _react2.default.createElement(
 	                    _Layout.DivPaddingFill,
@@ -56696,7 +56788,7 @@
 	exports.default = (0, _reactRedux.connect)(stateToNav)(Nav);
 
 /***/ },
-/* 522 */
+/* 523 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -56715,7 +56807,7 @@
 	}
 
 /***/ },
-/* 523 */
+/* 524 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -56851,7 +56943,7 @@
 	};
 
 /***/ },
-/* 524 */
+/* 525 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -56877,7 +56969,7 @@
 	
 	var _reactRedux = __webpack_require__(199);
 	
-	var _matcher = __webpack_require__(525);
+	var _matcher = __webpack_require__(526);
 	
 	var _matcher2 = _interopRequireDefault(_matcher);
 	
@@ -56989,7 +57081,7 @@
 	}
 
 /***/ },
-/* 525 */
+/* 526 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -57033,7 +57125,7 @@
 	}
 
 /***/ },
-/* 526 */
+/* 527 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -57050,11 +57142,11 @@
 	
 	var _reactRedux = __webpack_require__(199);
 	
-	var _Layout = __webpack_require__(523);
+	var _Layout = __webpack_require__(524);
 	
-	var _HashRouter = __webpack_require__(524);
+	var _HashRouter = __webpack_require__(525);
 	
-	var _ChatArea = __webpack_require__(527);
+	var _ChatArea = __webpack_require__(528);
 	
 	var _ChatArea2 = _interopRequireDefault(_ChatArea);
 	
@@ -57143,7 +57235,7 @@
 	exports.default = (0, _reactRedux.connect)()(MainArea);
 
 /***/ },
-/* 527 */
+/* 528 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -57160,13 +57252,39 @@
 	
 	var _reactRedux = __webpack_require__(199);
 	
-	var _Layout = __webpack_require__(523);
+	var _Layout = __webpack_require__(524);
 	
-	var _jpath = __webpack_require__(528);
+	var _jpath = __webpack_require__(529);
 	
 	var _jpath2 = _interopRequireDefault(_jpath);
 	
-	var _chatOps = __webpack_require__(529);
+	var _user_color = __webpack_require__(530);
+	
+	var _chatOps = __webpack_require__(532);
+	
+	var _TextareaAutoSize = __webpack_require__(533);
+	
+	var _TextareaAutoSize2 = _interopRequireDefault(_TextareaAutoSize);
+	
+	var _InputOnClick = __webpack_require__(534);
+	
+	var _InputOnClick2 = _interopRequireDefault(_InputOnClick);
+	
+	var _Toggle = __webpack_require__(514);
+	
+	var _Toggle2 = _interopRequireDefault(_Toggle);
+	
+	var _MemberList = __webpack_require__(535);
+	
+	var _MemberList2 = _interopRequireDefault(_MemberList);
+	
+	var _toggle = __webpack_require__(519);
+	
+	var _constants = __webpack_require__(473);
+	
+	var Constants = _interopRequireWildcard(_constants);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -57178,31 +57296,32 @@
 	
 	function mapStateToChat(state, props) {
 	    console.log("map to Chat props:", props);
+	    var my_id = state.model.me.id;
 	    var chat = state.model.chats.find(function (e) {
 	        return e.id == props.id;
-	    }) || {
-	        message_log: [],
-	        member_list: []
-	    };
+	    });
+	    var isNeedLoad = false;
+	    if (chat && !chat.member_list.find(function (m) {
+	        return m == my_id;
+	    })) isNeedLoad = true;
 	    return {
 	        chats: state.model.chats,
 	        model: state.model,
+	        me: state.model.me,
 	        isLoggedIn: state.state.isLoggedIn,
-	        chat: chat
+	        isChatMemberListOn: state.visual.isChatMemberListOn,
+	        chat: chat,
+	        isNeedLoad: isNeedLoad,
+	        message_log: chat.message_log
 	    };
 	}
-	
+	/*
+	 If server says 'no such chat' or some another error -- it should be somehow processed
+	 */
 	function checkWhetherToJoin(props) {
 	    if (!props.isLoggedIn) return;
 	    var chat_id = props.id;
-	    var my_id = props.model.me.id;
-	    var chat = props.chat;
-	    if (!chat.member_list.find(function (m) {
-	        return m == my_id;
-	    })) {
-	        var dispatch = props.dispatch;
-	        dispatch((0, _chatOps.chatJoin)(chat_id));
-	    }
+	    if (props.isNeedLoad) props.dispatch((0, _chatOps.chatJoin)(chat_id));
 	}
 	
 	var Chat = (0, _reactRedux.connect)(mapStateToChat)(function (_React$Component) {
@@ -57225,15 +57344,277 @@
 	        value: function componentDidMount() {
 	            console.log("Chat mount props: %o", this.props);
 	            checkWhetherToJoin(this.props);
+	            if (!this.chatInput) return;
+	            if (this.chatInputHeight) {
+	                this.chatInputButton.style.height = this.chatInputHeight;
+	                this.chatInputHeight = 0;
+	            }
+	            if (typeof this.props.chatInput !== 'undefined' && this.props.chatInput !== null) {
+	                this.chatInput.setState({ value: this.props.chatInput });
+	            }
+	            this.chatInput.focus();
+	            if (typeof this.props.scrollPosition === 'undefined' || this.props.scrollPosition === null) {
+	                this.scrollPosition = 1;
+	            } else {
+	                this.scrollPosition = this.props.scrollPosition;
+	            }
+	            var ch = this.mainDisplayArea.clientHeight;
+	            var sh = this.mainDisplayArea.scrollHeight;
+	            this.mainDisplayArea.scrollTop = (sh - ch) * this.scrollPosition;
+	        }
+	    }, {
+	        key: 'storeScrollPosition',
+	        value: function storeScrollPosition() {
+	            if (!this.mainDisplayArea) return;
+	            var ch = this.mainDisplayArea.clientHeight;
+	            var st = this.mainDisplayArea.scrollTop;
+	            var sh = this.mainDisplayArea.scrollHeight;
+	            if (ch < sh) {
+	                this.scrollPosition = st / (sh - ch);
+	            } else this.scrollPosition = 1;
+	        }
+	    }, {
+	        key: 'updateScrollPosition',
+	        value: function updateScrollPosition() {
+	            if (!this.mainDisplayArea) return;
+	            var ch = this.mainDisplayArea.clientHeight;
+	            var sh = this.mainDisplayArea.scrollHeight;
+	            if (this.scrollPosition == 1) this.mainDisplayArea.scrollTop = sh - ch;
+	        }
+	    }, {
+	        key: 'componentWillUpdate',
+	        value: function componentWillUpdate(nextProps) {
+	            this.storeScrollPosition();
+	        }
+	    }, {
+	        key: 'componentDidUpdate',
+	        value: function componentDidUpdate(prevProps) {
+	            this.updateScrollPosition();
+	        }
+	    }, {
+	        key: 'handleSubmit',
+	        value: function handleSubmit(event) {
+	            console.log("chatInput: %o", this.chatInput.valueOf());
+	            if (event) event.preventDefault();
+	            this.chatInput.focus();
+	            if (/^\s*$/.test(this.chatInput.valueOf())) return;
+	            this.props.dispatch((0, _chatOps.sendChatMessage)(this.props.id, this.chatInput.valueOf()));
+	            this.chatInput.setState({ value: "" });
+	            this.scrollPosition = 1;
+	            this.updateScrollPosition();
+	        }
+	    }, {
+	        key: 'handleInput',
+	        value: function handleInput(event) {
+	            if (event.key === 'Enter') {
+	                if (!event.shiftKey) {
+	                    event.preventDefault();
+	                    this.handleSubmit();
+	                }
+	            }
+	        }
+	    }, {
+	        key: 'showMessageList',
+	        value: function showMessageList() {
+	            var _this2 = this;
+	
+	            var messageLog = this.props.message_log;
+	            return messageLog.map(function (item) {
+	                var bclass = item.status === Constants.MESSAGE_RECEIVED ? "message_bullet_received" : item.status === Constants.MESSAGE_MINE ? "message_bullet_mine" : "message_bullet_sending";
+	                var user = (0, _jpath2.default)(_this2.props.model.members, function (m) {
+	                    return m.id === item.member_id;
+	                }, '0/login');
+	                return _react2.default.createElement(
+	                    'div',
+	                    { key: _this2.props.chat.id + "-" + (item.id || item.uniq_client_id) + bclass,
+	                        className: 'message_list' },
+	                    _react2.default.createElement(
+	                        'span',
+	                        { className: bclass },
+	                        '\u26AB'
+	                    ),
+	                    '\xA0',
+	                    _react2.default.createElement(
+	                        'span',
+	                        { className: 'nowrap message_list_time',
+	                            title: item.message_time.toLocaleDateString() + " " + item.message_time.toLocaleTimeString()
+	                        },
+	                        '[',
+	                        item.message_time.toLocaleTimeString().toLowerCase(),
+	                        ']'
+	                    ),
+	                    '\xA0',
+	                    _react2.default.createElement(
+	                        'span',
+	                        { className: 'nowrap message_list_username',
+	                            style: { color: '#' + (0, _user_color.userColor)(user) } },
+	                        user,
+	                        ':\xA0'
+	                    ),
+	                    _react2.default.createElement('div', { className: 'message_list_message',
+	                        dangerouslySetInnerHTML: { __html: item.html_message } })
+	                );
+	            });
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            console.log("Chat render props: %o", this.props);
+	            var _this3 = this;
+	
+	            if (this.props.isNeedLoad) {
+	                return _react2.default.createElement(
+	                    'div',
+	                    { className: 'container text-center' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { style: { minHeight: "100vh", display: "flex", alignItems: "center" } },
+	                        _react2.default.createElement(
+	                            'h1',
+	                            { className: 'text-info col-md-12 col-sm-12 col-xs-12' },
+	                            'Waiting for chat data'
+	                        )
+	                    )
+	                );
+	            }
+	            if (!this.props.chat) {
+	                return _react2.default.createElement(
+	                    'div',
+	                    { className: 'container text-center' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { style: { minHeight: "100vh", display: "flex", alignItems: "center" } },
+	                        _react2.default.createElement(
+	                            'h1',
+	                            { className: 'text-info col-md-12 col-sm-12 col-xs-12' },
+	                            'Unknown chat'
+	                        )
+	                    )
+	                );
+	            }
+	            var intViewportHeight = window.innerHeight;
+	            var maxHeight = intViewportHeight / 3;
+	            var _props = this.props,
+	                isChatMemberListOn = _props.isChatMemberListOn,
+	                dispatch = _props.dispatch;
+	
 	            return _react2.default.createElement(
 	                'div',
-	                null,
-	                'Chat'
+	                { className: 'main_work_area' },
+	                _react2.default.createElement(
+	                    _Layout.DivFlexFixed,
+	                    null,
+	                    _react2.default.createElement(
+	                        _Layout.DivFlexRow,
+	                        null,
+	                        _react2.default.createElement(
+	                            _Layout.DivFlexStretch,
+	                            null,
+	                            _react2.default.createElement(_InputOnClick2.default, {
+	                                style: {
+	                                    paddingLeft: "5px",
+	                                    width: "100%"
+	                                },
+	                                value: this.props.chat.title
+	                            })
+	                        ),
+	                        _react2.default.createElement(
+	                            _Layout.DivFlexFixed,
+	                            null,
+	                            _react2.default.createElement(
+	                                'button',
+	                                { style: {
+	                                        paddingTop: "2px",
+	                                        paddingBottom: "3px",
+	                                        borderBottomLeftRadius: "2px",
+	                                        borderBottomRightRadius: "2px",
+	                                        borderTopLeftRadius: "2px",
+	                                        borderTopRightRadius: "2px"
+	                                    }, type: 'button', className: 'btn btn-danger' },
+	                                'Leave chat'
+	                            )
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    _Layout.DivFlexStretchFill,
+	                    null,
+	                    _react2.default.createElement(
+	                        _Layout.DivFlexRow,
+	                        null,
+	                        _react2.default.createElement(
+	                            _Layout.DivFlexStretch,
+	                            { className: 'message_log' },
+	                            _react2.default.createElement(
+	                                'div',
+	                                { className: 'main_display_area',
+	                                    ref: function ref(mda) {
+	                                        return _this3.mainDisplayArea = mda;
+	                                    },
+	                                    onScroll: function onScroll() {
+	                                        return _this3.storeScrollPosition();
+	                                    }
+	                                },
+	                                this.showMessageList()
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            _Toggle2.default,
+	                            { divOptions: { style: { "height": "100%" }, className: "flex_fixed" },
+	                                isOn: isChatMemberListOn,
+	                                isBefore: true,
+	                                color: 'rgb(51,51,51)',
+	                                onClick: function onClick() {
+	                                    dispatch((0, _toggle.toggleChatMemberList)(isChatMemberListOn));
+	                                } },
+	                            _react2.default.createElement(_MemberList2.default, { member_list: this.props.chat.member_list, members: this.props.model.members })
+	                        ),
+	                        ' '
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    _Layout.DivFlexFixed,
+	                    { className: 'input-group main_work_area_bottom' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'table_max_cell_middle' },
+	                        _react2.default.createElement(_TextareaAutoSize2.default, { style: { maxHeight: maxHeight },
+	                            syncHeight: function syncHeight(h) {
+	                                if (_this3.chatInputButton) _this3.chatInputButton.style.height = h;
+	                                _this3.chatInputHeight = h;
+	                                _this3.updateScrollPosition();
+	                            },
+	                            onKeyPress: function onKeyPress(e) {
+	                                return _this3.handleInput(e);
+	                            },
+	                            ref: function ref(i) {
+	                                return _this3.chatInput = i;
+	                            },
+	                            id: 'chatInput',
+	                            name: 'chat_input'
+	                        })
+	                    ),
+	                    _react2.default.createElement(
+	                        'span',
+	                        { className: 'input-group-btn' },
+	                        _react2.default.createElement(
+	                            'button',
+	                            { type: 'button', className: 'btn orange',
+	                                style: { maxHeight: maxHeight, paddingTop: 0 },
+	                                ref: function ref(b) {
+	                                    return _this3.chatInputButton = b;
+	                                },
+	                                onClick: function onClick(e) {
+	                                    return _this3.handleSubmit(e);
+	                                }
+	                            },
+	                            _react2.default.createElement(
+	                                'span',
+	                                null,
+	                                'Send'
+	                            )
+	                        )
+	                    )
+	                )
 	            );
 	        }
 	    }]);
@@ -57244,7 +57625,7 @@
 	exports.default = Chat;
 
 /***/ },
-/* 528 */
+/* 529 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -57316,10 +57697,106 @@
 	}
 
 /***/ },
-/* 529 */
+/* 530 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.userColor = userColor;
+	
+	var _murmurhash = __webpack_require__(531);
+	
+	function clamp(v) {
+	    return v > 0 ? v < 1 ? v : 1 : 0;
+	}
+	
+	function rgbColor(r, g, b) {
+	    return [r, g, b].map(function (v) {
+	        v = Number(Math.round(clamp(v) * 255)).toString(16);
+	        return v.length == 1 ? '0' + v : v;
+	    }).join('');
+	}
+	
+	function HSVToRGB(h, opt_s, opt_v) {
+	    h *= 6;
+	    var s = opt_s === void 0 ? 1 : clamp(opt_s);
+	    var v = opt_v === void 0 ? 1 : clamp(opt_v);
+	    var x = v * (1 - s * Math.abs(h % 2 - 1));
+	    var m = v * (1 - s);
+	    switch (Math.floor(h) % 6) {
+	        case 0:
+	            return rgbColor(v, x, m);
+	        case 1:
+	            return rgbColor(x, v, m);
+	        case 2:
+	            return rgbColor(m, v, x);
+	        case 3:
+	            return rgbColor(m, x, v);
+	        case 4:
+	            return rgbColor(x, m, v);
+	        default:
+	            return rgbColor(v, m, x);
+	    }
+	}
+	
+	function userColor(username) {
+	    var hash = (0, _murmurhash.murmurhash2)(username);
+	    var h = (hash >>> 16) / 0x10000;
+	    var s = ((hash & 0xffff) + 0x10000) / 0x20000;
+	    var v = Math.pow(((hash & 0xffff) >>> 1) / 0x10000, 0.33);
+	    return HSVToRGB(h, s, v);
+	}
+
+/***/ },
+/* 531 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.murmurhash2 = murmurhash2;
+	function murmurhash2(str) {
+	  var l = str.length,
+	      h = 0x04C11DB7 ^ l,
+	      i = 0,
+	      k;
+	  while (l >= 4) {
+	    k = str.charCodeAt(i) & 0xff | (str.charCodeAt(++i) & 0xff) << 8 | (str.charCodeAt(++i) & 0xff) << 16 | (str.charCodeAt(++i) & 0xff) << 24;
+	    k = (k & 0xffff) * 0x5bd1e995 + (((k >>> 16) * 0x5bd1e995 & 0xffff) << 16);
+	    k ^= k >>> 24;
+	    k = (k & 0xffff) * 0x5bd1e995 + (((k >>> 16) * 0x5bd1e995 & 0xffff) << 16);
+	    h = (h & 0xffff) * 0x5bd1e995 + (((h >>> 16) * 0x5bd1e995 & 0xffff) << 16) ^ k;
+	    l -= 4;
+	    ++i;
+	  }
+	
+	  switch (l) {
+	    case 3:
+	      h ^= (str.charCodeAt(i + 2) & 0xff) << 16;
+	    case 2:
+	      h ^= (str.charCodeAt(i + 1) & 0xff) << 8;
+	    case 1:
+	      h ^= str.charCodeAt(i) & 0xff;
+	      h = (h & 0xffff) * 0x5bd1e995 + (((h >>> 16) * 0x5bd1e995 & 0xffff) << 16);
+	  }
+	
+	  h ^= h >>> 13;
+	  h = (h & 0xffff) * 0x5bd1e995 + (((h >>> 16) * 0x5bd1e995 & 0xffff) << 16);
+	  h ^= h >>> 15;
+	
+	  return h >>> 0;
+	}
+
+/***/ },
+/* 532 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
 	/**
 	 * Created by anton on 13.02.17.
 	 */
@@ -57328,10 +57805,19 @@
 	    value: true
 	});
 	exports.chatJoin = chatJoin;
+	exports.sendChatMessage = sendChatMessage;
 	
 	var _wsAjax = __webpack_require__(501);
 	
 	var _wsAjax2 = _interopRequireDefault(_wsAjax);
+	
+	var _consoleLog = __webpack_require__(500);
+	
+	var _constants = __webpack_require__(473);
+	
+	var Constants = _interopRequireWildcard(_constants);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -57347,12 +57833,458 @@
 	            }
 	        }, function (response) {
 	            console.log("chat join member response: ", response);
+	            if (response.body.result !== 'OK') dispatch((0, _consoleLog.consoleLog)('error', response.body.answer));
+	        });
+	    };
+	}function sendChatMessage(chat_id, message) {
+	    var ws = new _wsAjax2.default();
+	    return function (dispatch, getState) {
+	        var uniqClientId = '' + Math.random();
+	        var my_id = getState().model.me.id;
+	        dispatch({
+	            type: Constants.CHAT_ADD_MESSAGE,
+	            payload: {
+	                uniq_client_id: uniqClientId,
+	                message: message,
+	                member_id: my_id,
+	                chat_id: chat_id,
+	                message_time: new Date(),
+	                html_message: global.markdown.render(message),
+	                status: Constants.MESSAGE_MINE_SENDING
+	            }
+	        });
+	        ws.send({
+	            ajax: {
+	                method: "chat send message",
+	                parameters: {
+	                    id: chat_id,
+	                    message: message,
+	                    uniq_client_id: uniqClientId
+	                }
+	            }
+	        }, function (response) {
+	            console.log("chat send message response: ", response);
+	            if (response.body.result !== 'OK') dispatch((0, _consoleLog.consoleLog)('error', response.body.answer));
 	        });
 	    };
 	}
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 530 */
+/* 533 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var TextareaAutoSize = function (_React$Component) {
+	    _inherits(TextareaAutoSize, _React$Component);
+	
+	    function TextareaAutoSize(props) {
+	        _classCallCheck(this, TextareaAutoSize);
+	
+	        var _this = _possibleConstructorReturn(this, (TextareaAutoSize.__proto__ || Object.getPrototypeOf(TextareaAutoSize)).call(this, props));
+	
+	        _this.syncHeight = _this.props.syncHeight;
+	        return _this;
+	    }
+	
+	    _createClass(TextareaAutoSize, [{
+	        key: 'recalcHeight',
+	        value: function recalcHeight() {
+	            var borders = 2;
+	            var innerHeight = Math.floor(this.textarea.scrollHeight / 2) * 2 + 1;
+	            this.textarea.style.height = innerHeight + borders + 'px';
+	            if (this.syncHeight) this.syncHeight(this.textarea.style.height);
+	        }
+	    }, {
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            if (this.delayedValue) {
+	                this.setState({ value: this.delayedValue });
+	                delete this.delayedValue;
+	            }
+	            this.recalcHeight();
+	        }
+	    }, {
+	        key: 'handleChange',
+	        value: function handleChange(e) {
+	            this.textarea.style.height = 0;
+	            this.recalcHeight();
+	            if (this.props.onChange) this.props.onChange(e.target.value);
+	        }
+	    }, {
+	        key: 'setState',
+	        value: function setState(_ref) {
+	            var value = _ref.value;
+	
+	            if (!this.textarea) {
+	                this.delayedValue = value;
+	            } else if (this.textarea.value !== value) {
+	                this.textarea.value = value;
+	                this.handleChange({ target: { value: value } });
+	            }
+	        }
+	    }, {
+	        key: 'valueOf',
+	        value: function valueOf() {
+	            return this.textarea ? this.textarea.value : null;
+	        }
+	    }, {
+	        key: 'toString',
+	        value: function toString() {
+	            return this.textarea ? this.textarea.value : null;
+	        }
+	    }, {
+	        key: 'focus',
+	        value: function focus() {
+	            if (this.textarea) this.textarea.focus();
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this2 = this;
+	
+	            var props = Object.assign({}, this.props);
+	            if ("syncHeight" in props) delete props.syncHeight;
+	            return _react2.default.createElement('textarea', _extends({}, props, {
+	                ref: function ref(t) {
+	                    return _this2.textarea = t;
+	                },
+	                rows: '1',
+	                onChange: function onChange(e) {
+	                    return _this2.handleChange(e);
+	                }
+	            }));
+	        }
+	    }]);
+	
+	    return TextareaAutoSize;
+	}(_react2.default.Component);
+	
+	exports.default = TextareaAutoSize;
+
+/***/ },
+/* 534 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _Layout = __webpack_require__(524);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Created by anton on 16.02.17.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+	
+	
+	var InputOnClick = function (_React$Component) {
+	    _inherits(InputOnClick, _React$Component);
+	
+	    function InputOnClick(props) {
+	        _classCallCheck(this, InputOnClick);
+	
+	        var _this = _possibleConstructorReturn(this, (InputOnClick.__proto__ || Object.getPrototypeOf(InputOnClick)).call(this, props));
+	
+	        _this.state = {
+	            isActive: false,
+	            initialValue: _this.props.value || "",
+	            value: _this.props.value || "",
+	            storedValue: _this.props.value || ""
+	        };
+	        _this.lastSubmitValue = _this.props.value || "";
+	        _this.inputProps = {};
+	        if (_this.props.style) _this.inputProps.style = _this.props.style;
+	        if (_this.props.className) _this.inputProps.className = _this.props.className;
+	        _this.lastKey = '';
+	        return _this;
+	    }
+	
+	    _createClass(InputOnClick, [{
+	        key: 'valueOf',
+	        value: function valueOf() {
+	            return this.state.value;
+	        }
+	    }, {
+	        key: 'toString',
+	        value: function toString() {
+	            return this.state.value;
+	        }
+	    }, {
+	        key: 'handleChange',
+	        value: function handleChange(e) {
+	            this.setState({ value: e.target.value });
+	            if (this.props.onChange) this.props.onChange(e.target.value);
+	        }
+	    }, {
+	        key: 'handleInput',
+	        value: function handleInput(event) {
+	            var key = event.key;
+	            if (this.lastKey !== key && key === 'Enter') {
+	                event.preventDefault();
+	                this.setState({ isActive: false });
+	                this.handleSubmit();
+	            } else if (key == 'Escape' || key == 'Esc' || event.keyCode == 27) {
+	                event.preventDefault();
+	                this.setState({
+	                    isActive: false,
+	                    value: this.state.storedValue
+	                });
+	            }
+	            this.lastKey = key;
+	        }
+	    }, {
+	        key: 'handleSubmit',
+	        value: function handleSubmit(event) {
+	            if (event) event.preventDefault();
+	            if (this.state.value === this.lastSubmitValue) return;
+	            this.lastSubmitValue = this.state.value;
+	            console.log("chatInput: %o", this.state.value);
+	            if (this.props.onSubmit) this.props.onSubmit(this.state.value);
+	            this.setState({ storedValue: this.state.value });
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this2 = this;
+	
+	            var divStyle = {
+	                display: "inline-block",
+	                position: "relative"
+	            };
+	            if (this.inputProps.style.width) divStyle.width = this.inputProps.style.width;
+	            return _react2.default.createElement(
+	                'div',
+	                { style: divStyle,
+	                    onClick: function onClick(e) {
+	                        e.preventDefault();
+	                        _this2.setState({
+	                            isActive: true,
+	                            storedValue: _this2.state.value
+	                        });
+	                        setTimeout(function () {
+	                            return _this2.input.focus();
+	                        }, 0);
+	                    } },
+	                _react2.default.createElement('input', _extends({ type: 'text' }, this.inputProps, {
+	                    disabled: !this.state.isActive,
+	                    value: this.state.value,
+	                    onChange: function onChange(e) {
+	                        return _this2.handleChange(e);
+	                    },
+	                    ref: function ref(r) {
+	                        return _this2.input = r;
+	                    },
+	                    onKeyDown: function onKeyDown(e) {
+	                        _this2.handleInput(e);
+	                    },
+	                    onBlur: function onBlur(e) {
+	                        _this2.setState({ isActive: false });
+	                        _this2.handleSubmit(e);
+	                    }
+	                }))
+	            );
+	        }
+	    }]);
+	
+	    return InputOnClick;
+	}(_react2.default.Component);
+	
+	exports.default = InputOnClick;
+
+/***/ },
+/* 535 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _measure_text_width = __webpack_require__(523);
+	
+	var _Layout = __webpack_require__(524);
+	
+	var _HashRouter = __webpack_require__(525);
+	
+	var _jpath = __webpack_require__(529);
+	
+	var _jpath2 = _interopRequireDefault(_jpath);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var MemberList = function (_React$Component) {
+	    _inherits(MemberList, _React$Component);
+	
+	    function MemberList(props) {
+	        _classCallCheck(this, MemberList);
+	
+	        return _possibleConstructorReturn(this, (MemberList.__proto__ || Object.getPrototypeOf(MemberList)).call(this, props));
+	    }
+	
+	    _createClass(MemberList, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            this.recalcMinWidth();
+	        }
+	    }, {
+	        key: 'componentDidUpdate',
+	        value: function componentDidUpdate() {
+	            this.recalcMinWidth();
+	        }
+	    }, {
+	        key: 'recalcMinWidth',
+	        value: function recalcMinWidth() {
+	            var _props = this.props,
+	                member_list = _props.member_list,
+	                members = _props.members;
+	
+	            var maxNavString = member_list.reduce(function (a, c) {
+	                var u = (0, _jpath2.default)(members, function (m) {
+	                    return m.id === c;
+	                }, '0/login');
+	                return u.length > a.length ? u : a;
+	            }, "WWWW");
+	            maxNavString += "WW";
+	            this.minNavWidth = Math.min((0, _measure_text_width.measureTextWidth)(maxNavString, this.memberList), document.documentElement.clientWidth / 3);
+	            this.setMinWidth(this.minNavWidth + 'px');
+	        }
+	    }, {
+	        key: 'getMinWidth',
+	        value: function getMinWidth() {
+	            return this.minNavWidth;
+	        }
+	    }, {
+	        key: 'setMinWidth',
+	        value: function setMinWidth(width) {
+	            this.memberList.style.minWidth = width;
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this2 = this;
+	
+	            var _props2 = this.props,
+	                member_list = _props2.member_list,
+	                members = _props2.members;
+	
+	            return _react2.default.createElement(
+	                _Layout.DivFlexFixed,
+	                { className: 'relative', refProp: function refProp(e) {
+	                        return _this2.memberList = e;
+	                    } },
+	                _react2.default.createElement(
+	                    _Layout.DivPaddingFill,
+	                    null,
+	                    _react2.default.createElement(
+	                        _Layout.DivFlexColumn,
+	                        { className: 'full_height' },
+	                        _react2.default.createElement(
+	                            _Layout.DivFlexColumn,
+	                            { className: 'flex_stretch' },
+	                            _react2.default.createElement(
+	                                'table',
+	                                { style: { alignSelf: "center" } },
+	                                _react2.default.createElement(
+	                                    'thead',
+	                                    null,
+	                                    _react2.default.createElement(
+	                                        'tr',
+	                                        null,
+	                                        _react2.default.createElement(
+	                                            'th',
+	                                            null,
+	                                            'Members'
+	                                        )
+	                                    )
+	                                )
+	                            ),
+	                            _react2.default.createElement(
+	                                _Layout.DivFlexStretch,
+	                                { className: 'vscroll_auto' },
+	                                _react2.default.createElement(
+	                                    'ul',
+	                                    { className: 'main_nav_sub_list' },
+	                                    _react2.default.createElement(
+	                                        'li',
+	                                        { className: 'list_no_wraps_no_discs' },
+	                                        member_list.map(function (item, index) {
+	                                            return _react2.default.createElement(
+	                                                _HashRouter.Link,
+	                                                { key: index + "-" + item,
+	                                                    className: 'main_nav_sub_item',
+	                                                    to: "/member/" + item },
+	                                                (0, _jpath2.default)(members, function (m) {
+	                                                    return m.id === item;
+	                                                }, '0/login')
+	                                            );
+	                                        })
+	                                    )
+	                                )
+	                            )
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+	
+	    return MemberList;
+	}(_react2.default.Component);
+	
+	exports.default = MemberList;
+
+/***/ },
+/* 536 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -57366,15 +58298,17 @@
 	
 	var Constants = _interopRequireWildcard(_constants);
 	
-	var _main = __webpack_require__(531);
+	var _main = __webpack_require__(537);
 	
-	var _login = __webpack_require__(532);
+	var _login = __webpack_require__(538);
 	
-	var _model = __webpack_require__(533);
+	var _model = __webpack_require__(539);
 	
-	var _consoleLog = __webpack_require__(534);
+	var _consoleLog = __webpack_require__(542);
 	
-	var _toggle = __webpack_require__(535);
+	var _toggle = __webpack_require__(543);
+	
+	var _chatOps = __webpack_require__(544);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
@@ -57414,12 +58348,27 @@
 	        case Constants.TOGGLE_NAV:
 	            (0, _toggle.toggleNav)(new_state, action);
 	            break;
+	        case Constants.TOGGLE_CHAT_MEMBER_LIST:
+	            (0, _toggle.toggleChatMemberList)(new_state, action);
+	            break;
+	        case Constants.CHAT_JOIN:
+	            (0, _chatOps.chatJoinMember)(new_state, action);
+	            break;
+	        case Constants.CHAT_DATA:
+	            (0, _chatOps.chatData)(new_state, action);
+	            break;
+	        case Constants.CHAT_ADD_MESSAGE:
+	            (0, _chatOps.chatAddNewMessage)(new_state, action);
+	            break;
+	        case Constants.CHAT_MESSAGE_FROM_SERVER:
+	            (0, _chatOps.chatNewMessageFromServer)(new_state, action);
+	            break;
 	    }
 	    return new_state;
 	}
 
 /***/ },
-/* 531 */
+/* 537 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -57441,7 +58390,8 @@
 	        model: {},
 	        visual: {
 	            isHeaderOn: true,
-	            isNavOn: true
+	            isNavOn: true,
+	            isChatMemberListOn: false
 	        },
 	        system: {
 	            headerText: 'PEF Front Websocket Chat Demo'
@@ -57452,7 +58402,7 @@
 	}
 
 /***/ },
-/* 532 */
+/* 538 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -57490,8 +58440,8 @@
 	}
 
 /***/ },
-/* 533 */
-/***/ function(module, exports) {
+/* 539 */
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -57500,16 +58450,127 @@
 	});
 	exports.initializeModel = initializeModel;
 	exports.uninitializeModel = uninitializeModel;
+	
+	var _dateformat = __webpack_require__(540);
+	
+	var _messageFromServer = __webpack_require__(541);
+	
+	var _constants = __webpack_require__(473);
+	
+	var Constants = _interopRequireWildcard(_constants);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
 	function initializeModel(new_state, action) {
 	    new_state.model = Object.assign({}, action.payload);
+	    var my_id = new_state.model.me.id;
+	    var _iteratorNormalCompletion = true;
+	    var _didIteratorError = false;
+	    var _iteratorError = undefined;
+	
+	    try {
+	        for (var _iterator = new_state.model.chats[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            var chat = _step.value;
+	
+	            chat.created = (0, _dateformat.parseDate)(chat.created);
+	            var _iteratorNormalCompletion2 = true;
+	            var _didIteratorError2 = false;
+	            var _iteratorError2 = undefined;
+	
+	            try {
+	                for (var _iterator2 = chat.message_log[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                    var ml = _step2.value;
+	
+	                    (0, _messageFromServer.convertMessageFromServer)(ml, my_id);
+	                }
+	            } catch (err) {
+	                _didIteratorError2 = true;
+	                _iteratorError2 = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	                        _iterator2.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError2) {
+	                        throw _iteratorError2;
+	                    }
+	                }
+	            }
+	        }
+	    } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	    } finally {
+	        try {
+	            if (!_iteratorNormalCompletion && _iterator.return) {
+	                _iterator.return();
+	            }
+	        } finally {
+	            if (_didIteratorError) {
+	                throw _iteratorError;
+	            }
+	        }
+	    }
 	}
 	
 	function uninitializeModel(new_state) {
 	    new_state.model = {};
+	    new_state.state.isLoggedIn = false;
 	}
 
 /***/ },
-/* 534 */
+/* 540 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.parseDate = parseDate;
+	exports.toServerDate = toServerDate;
+	function parseDate(dateFromServer) {
+	  var isoStr = dateFromServer.replace(' ', 'T').replace(/([+-]\d\d)$/, '$1:00').replace(/([+-]\d\d)(\d\d)$/, '$1:$2');
+	  return new Date(isoStr);
+	}
+	
+	function toServerDate(date) {
+	  return date.toISOString();
+	}
+
+/***/ },
+/* 541 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.convertMessageFromServer = convertMessageFromServer;
+	
+	var _dateformat = __webpack_require__(540);
+	
+	var _constants = __webpack_require__(473);
+	
+	var Constants = _interopRequireWildcard(_constants);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	/**
+	 * Created by anton on 17.02.17.
+	 */
+	
+	function convertMessageFromServer(payload, my_id) {
+	    payload.message_time = (0, _dateformat.parseDate)(payload.message_time);
+	    payload.html_message = global.markdown.render(payload.message);
+	    payload.status = payload.member_id == my_id ? Constants.MESSAGE_MINE : Constants.MESSAGE_RECEIVED;
+	}
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 542 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -57531,7 +58592,7 @@
 	}
 
 /***/ },
-/* 535 */
+/* 543 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -57541,6 +58602,7 @@
 	});
 	exports.toggleHeader = toggleHeader;
 	exports.toggleNav = toggleNav;
+	exports.toggleChatMemberList = toggleChatMemberList;
 	function toggleHeader(new_state, action) {
 	    new_state.visual = Object.assign({}, new_state.visual);
 	    new_state.visual.isHeaderOn = action.payload;
@@ -57549,6 +58611,130 @@
 	function toggleNav(new_state, action) {
 	    new_state.visual = Object.assign({}, new_state.visual);
 	    new_state.visual.isNavOn = action.payload;
+	}
+	
+	function toggleChatMemberList(new_state, action) {
+	    new_state.visual = Object.assign({}, new_state.visual);
+	    new_state.visual.isChatMemberListOn = action.payload;
+	}
+
+/***/ },
+/* 544 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.chatJoinMember = chatJoinMember;
+	exports.chatData = chatData;
+	exports.chatAddNewMessage = chatAddNewMessage;
+	exports.chatNewMessageFromServer = chatNewMessageFromServer;
+	
+	var _dateformat = __webpack_require__(540);
+	
+	var _messageFromServer = __webpack_require__(541);
+	
+	var _constants = __webpack_require__(473);
+	
+	var Constants = _interopRequireWildcard(_constants);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function chatJoinMember(new_state, action) {
+	    var chat = new_state.model.chats.find(function (e) {
+	        return e.id == action.payload.chat_id;
+	    });
+	    if (!chat) return;
+	    var am = chat.member_list.find(function (e) {
+	        return e == action.payload.member_id;
+	    });
+	    if (typeof am === 'undefined') {
+	        chat.member_list = Object.assign([], chat.member_list);
+	        chat.member_list.push(member_id);
+	    }
+	}
+	
+	function chatData(new_state, action) {
+	    var chatIndex = new_state.model.chats.findIndex(function (e) {
+	        return e.id == action.payload.id;
+	    });
+	    var my_id = new_state.model.me.id;
+	    var _iteratorNormalCompletion = true;
+	    var _didIteratorError = false;
+	    var _iteratorError = undefined;
+	
+	    try {
+	        for (var _iterator = action.payload.message_log[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            var ml = _step.value;
+	
+	            (0, _messageFromServer.convertMessageFromServer)(ml, my_id);
+	        }
+	    } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	    } finally {
+	        try {
+	            if (!_iteratorNormalCompletion && _iterator.return) {
+	                _iterator.return();
+	            }
+	        } finally {
+	            if (_didIteratorError) {
+	                throw _iteratorError;
+	            }
+	        }
+	    }
+	
+	    action.payload.created = (0, _dateformat.parseDate)(action.payload.created);
+	    if (chatIndex === -1) {
+	        new_state.model.chats = Object.assign([], new_state.model.chats);
+	        new_state.model.chats.push(action.payload);
+	    } else {
+	        new_state.model.chats[chatIndex] = action.payload;
+	    }
+	}
+	// payload: {
+	//     uniq_client_id: uniqClientId,
+	//         message: message,
+	//         member_id: my_id,
+	//         chat_id: chat_id,
+	//         message_time: new Date(),
+	//         html_message: global.markdown.render(message),
+	//         status: Constants.MESSAGE_MINE_SENDING,
+	// }
+	
+	function chatAddNewMessage(new_state, action) {
+	    var chat = new_state.model.chats.find(function (e) {
+	        return e.id == action.payload.chat_id;
+	    });
+	    if (!chat) return;
+	    chat.message_log = Object.assign([], chat.message_log);
+	    chat.message_log.push(action.payload);
+	}
+	
+	function chatNewMessageFromServer(new_state, action) {
+	    var chat = new_state.model.chats.find(function (e) {
+	        return e.id == action.payload.chat_id;
+	    });
+	    if (!chat) return;
+	    var my_id = new_state.model.me.id;
+	    chat.message_log = Object.assign([], chat.message_log);
+	    var lmsg = void 0;
+	    var f = function f() {
+	        lmsg = chat.message_log.find(function (m) {
+	            return typeof m.id === 'undefined' && m.uniq_client_id && action.payload.uniq_client_id === m.uniq_client_id;
+	        });
+	        return lmsg ? true : false;
+	    };
+	    if (action.payload.member_id === my_id && f()) {
+	        lmsg.id = action.payload.id;
+	        lmsg.message_time = (0, _dateformat.parseDate)(action.payload.message_time);
+	        lmsg.status = Constants.MESSAGE_MINE;
+	    } else {
+	        (0, _messageFromServer.convertMessageFromServer)(action.payload, my_id);
+	        chat.message_log.push(action.payload);
+	    }
 	}
 
 /***/ }

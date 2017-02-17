@@ -148,7 +148,7 @@ sub send_message {
 		sub {
 			$message = new_row(
 				'chat_message',
-				content   => $req->{content},
+				message   => $req->{message},
 				member_id => $context->{member}->id,
 				chat_id   => $context->{chat}->id,
 			);
@@ -158,11 +158,12 @@ sub send_message {
 			return +{
 				action => 'chat new message',
 				params => {
-					id           => $message->id,
-					content      => $req->{content},
-					member_id    => $context->{member}->id,
-					chat_id      => $context->{chat}->id,
-					message_time => $message->message_time
+					id             => $message->id,
+					message        => $req->{message},
+					member_id      => $context->{member}->id,
+					chat_id        => $context->{chat}->id,
+					message_time   => $message->message_time,
+					uniq_client_id => $req->{uniq_client_id},
 				},
 			};
 		}
@@ -181,13 +182,13 @@ sub edit_message {
 		$context,
 		'chat::' . $context->{chat_message}->chat_id,
 		sub {
-			$context->{chat_message}->content($req->{content});
+			$context->{chat_message}->message($req->{message});
 			$context->{chat_message}->update;
 		},
 		+{  action => 'chat edit message',
 			params => {
 				id           => $req->{id},
-				content      => $req->{content},
+				message      => $req->{message},
 				member_id    => $context->{member}->id,
 				chat_id      => $context->{chat_message}->chat_id,
 				message_time => $context->{chat_message}->message_time,
@@ -238,17 +239,15 @@ sub join_member {
 #>>>
 			};
 			my $limit = last_chat_messages();
-			$chat_data = {
-				chat_id     => $context->{chat}->id,
-				message_log => chat_message_log($limit, $context->{chat}->id),
-				member_list => all_rows(
-					[chat_member => -columns => 'member_id'],
-					{chat_id     => $context->{chat}->id},
-					sub {
-						$_->member_id;
-					}
-				),
-			};
+			$chat_data = $context->{chat}->data;
+			$chat_data->{message_log} = chat_message_log($limit, $context->{chat}->id);
+			$chat_data->{member_list} = all_rows(
+				[chat_member => -columns => 'member_id'],
+				{chat_id     => $context->{chat}->id},
+				sub {
+					$_->member_id;
+				}
+			);
 			subscribe_to_queue($context, 'chat::' . $context->{chat}->id, 0);
 			publish_to_client(
 				$context,

@@ -4,7 +4,8 @@ import {initialStateStore} from '../store/main';
 import {clearLoginError, loginResponse, loginSubmitError} from './login'
 import {initializeModel, uninitializeModel} from './model'
 import {consoleLog, consoleLogHide} from './consoleLog'
-import {toggleHeader, toggleNav} from './toggle'
+import {toggleHeader, toggleNav, toggleChatMemberList} from './toggle'
+import {chatJoinMember, chatData, chatAddNewMessage, chatNewMessageFromServer} from './chatOps'
 
 export default function reducer(state, action) {
     console.log('Reducer args: %o | %o', state, action);
@@ -43,6 +44,21 @@ export default function reducer(state, action) {
             break;
         case Constants.TOGGLE_NAV:
             toggleNav(new_state, action);
+            break;
+        case Constants.TOGGLE_CHAT_MEMBER_LIST:
+            toggleChatMemberList(new_state, action);
+            break;
+        case Constants.CHAT_JOIN:
+            chatJoinMember(new_state, action);
+            break;
+        case Constants.CHAT_DATA:
+            chatData(new_state, action);
+            break;
+        case Constants.CHAT_ADD_MESSAGE:
+            chatAddNewMessage(new_state, action);
+            break;
+        case Constants.CHAT_MESSAGE_FROM_SERVER:
+            chatNewMessageFromServer(new_state, action);
             break;
     }
     return new_state;

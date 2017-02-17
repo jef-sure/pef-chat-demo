@@ -15,3 +15,10 @@ export function toggleNav(currentState) {
         payload: !currentState
     }
 }
+
+export function toggleChatMemberList(currentState) {
+    return {
+        type: Constants.TOGGLE_CHAT_MEMBER_LIST,
+        payload: !currentState
+    }
+}

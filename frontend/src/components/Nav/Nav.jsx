@@ -64,24 +64,34 @@ const NavClear = (index) => () =>
 class Nav extends React.Component {
     constructor(props) {
         super(props);
-        this.maxNavString = navStruct.reduce((a, c) => c.name.length > a.length ? c.name : a) + "WW";
+        this.maxNavString = navStruct.reduce(
+                (a, c) => c.name.length > a.length ? c.name : a, ""
+            )
+            + "WWWWW";
+        this.maxNavStringInitial = this.maxNavString;
     }
 
     componentDidMount() {
         this.recalcMinWidth();
+        this.forceUpdate = () => this.recalcMinWidth();
+        window.addEventListener('resize', this.forceUpdate);
     }
 
     componentDidUpdate() {
         this.recalcMinWidth();
     }
 
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.forceUpdate)
+    }
+
     recalcMinWidth() {
         const {model} = this.props;
         for (let ns of navStruct) {
             this.maxNavString = model[ns.modelKey].reduce(
-                    (a, c) => c[ns.titleKey].length > a.length ? c[ns.titleKey] : a,
-                    this.maxNavString
-                ) + "WWW";
+                (a, c) => c[ns.titleKey].length > a.length ? c[ns.titleKey] : a,
+                this.maxNavStringInitial
+            ) + "WWWWW";
         }
         this.minNavWidth = measureTextWidth(this.maxNavString, this.mainNav);
         this.minNavWidth = Math.min(this.minNavWidth, document.documentElement.clientWidth / 3);

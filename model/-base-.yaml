@@ -30,7 +30,6 @@ params:
     filter: [ s/</&lt;/g, s/>/&gt;/g ]
   chat_title:
     max-size: 500
-    filter: [ s/</&lt;/g, s/>/&gt;/g ]
   id_to_theme:
     base: positive_integer
     filter: Theme::id_to_theme
@@ -42,17 +41,13 @@ params:
     filter: Theme::id_to_comment_optional
   theme_subject:
     max-size: 100
-    filter: [ s/</&lt;/g, s/>/&gt;/g ]
   theme_body:
     max-size: 4000
-    filter: [ s/</&lt;/g, s/>/&gt;/g ]
   theme_comment:
     max-size: 1000
-    filter: [ s/</&lt;/g, s/>/&gt;/g ]
   message_content:
     min-size: 1
     max-size: 1000
-    filter: [ s/</&lt;/g, s/>/&gt;/g ]
   iso_timestamp: ^(?:(?:\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z)|(?:\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?[+-]\d+(?::\d+)?)|(?:\d{8}T\d{6}Z))$
   limit:
     regex: ^\d+$        

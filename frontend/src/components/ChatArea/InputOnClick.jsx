@@ -11,7 +11,6 @@ export default class InputOnClick extends React.Component {
             isActive: false,
             initialValue: this.props.value || "",
             value: this.props.value || "",
-            storedValue: this.props.value || "",
         }
         this.lastSubmitValue = this.props.value || "";
         this.inputProps = {};
@@ -20,6 +19,15 @@ export default class InputOnClick extends React.Component {
         if (this.props.className)
             this.inputProps.className = this.props.className;
         this.lastKey = '';
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (this.state.initialValue !== nextProps.value)
+            this.setState({
+                value: nextProps.value,
+                initialValue: nextProps.value,
+                isActive: false
+            });
     }
 
     valueOf() {
@@ -45,7 +53,7 @@ export default class InputOnClick extends React.Component {
             event.preventDefault();
             this.setState({
                 isActive: false,
-                value: this.state.storedValue,
+                value: this.state.initialValue,
             });
         }
         this.lastKey = key;
@@ -57,10 +65,22 @@ export default class InputOnClick extends React.Component {
         if (this.state.value === this.lastSubmitValue)
             return;
         this.lastSubmitValue = this.state.value;
-        console.log("chatInput: %o", this.state.value);
+        this.setState({initialValue: this.state.value});
         if (this.props.onSubmit)
             this.props.onSubmit(this.state.value);
-        this.setState({storedValue: this.state.value});
+    }
+
+    onMouseEnter() {
+        this.setState({isActive: true});
+        this.clicked = false;
+        setTimeout(() => this.input.focus(), 0);
+    }
+
+    onMouseLeave() {
+        if (!this.clicked && this.state.value === this.state.initialValue) {
+            this.setState({isActive: false});
+            if (this.props.returnFocus) this.props.returnFocus();
+        }
     }
 
     render() {
@@ -71,14 +91,12 @@ export default class InputOnClick extends React.Component {
         if (this.inputProps.style.width)
             divStyle.width = this.inputProps.style.width;
         return <div style={divStyle}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        this.setState({
-                            isActive: true,
-                            storedValue: this.state.value,
-                        });
-                        setTimeout(() => this.input.focus(), 0);
-                    }}>
+                    onMouseEnter={() => this.onMouseEnter()}
+                    onMouseLeave={() => this.onMouseLeave()}
+                    onClick={() => {
+                        this.clicked = true
+                    }}
+        >
             <input type="text" {...this.inputProps}
                    disabled={!this.state.isActive}
                    value={this.state.value}

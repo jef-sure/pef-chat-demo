@@ -12,6 +12,16 @@ export default class MemberList extends React.Component {
 
     componentDidMount() {
         this.recalcMinWidth();
+        this.forceUpdate = () => this.recalcMinWidth();
+        window.addEventListener('resize', this.forceUpdate);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        console.log("MemberList will receive props: ", nextProps);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.forceUpdate)
     }
 
     componentDidUpdate() {
@@ -23,8 +33,8 @@ export default class MemberList extends React.Component {
         let maxNavString = member_list.reduce((a, c) => {
             let u = jpath(members, (m) => m.id === c, '0/login');
             return (u.length > a.length) ? u : a;
-        }, "WWWW");
-        maxNavString += "WW";
+        }, "WWWWWWW");
+        maxNavString += "WWWWW";
         this.minNavWidth = Math.min(measureTextWidth(maxNavString, this.memberList), document.documentElement.clientWidth / 3);
         this.setMinWidth(this.minNavWidth + 'px');
     }
@@ -52,16 +62,16 @@ export default class MemberList extends React.Component {
                         </table>
                         <DivFlexStretch className="vscroll_auto">
                             <ul className="main_nav_sub_list">
-                                <li className="list_no_wraps_no_discs">{
+                                {
                                     member_list.map((item, index) =>
-                                        <Link key={index + "-" + item}
-                                              className="main_nav_sub_item"
-                                              to={"/member/" + item}>
-                                            {jpath(members, (m) => m.id === item, '0/login')}
-                                        </Link>
+                                        <li className="list_no_wraps_no_discs" key={item}>
+                                            <Link className="main_nav_sub_item"
+                                                  to={"/member/" + item}>
+                                                {jpath(members, (m) => m.id === item, '0/login')}
+                                            </Link>
+                                        </li>
                                     )
                                 }
-                                </li>
                             </ul>
                         </DivFlexStretch>
                     </DivFlexColumn>

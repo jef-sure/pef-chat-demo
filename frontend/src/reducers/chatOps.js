@@ -10,13 +10,14 @@ export function chatJoinMember(new_state, action) {
     let am = chat.member_list.find((e) => e == action.payload.member_id);
     if (typeof am === 'undefined') {
         chat.member_list = Object.assign([], chat.member_list);
-        chat.member_list.push(member_id);
+        chat.member_list.push(action.payload.member_id);
     }
 }
 
 export function chatData(new_state, action) {
     let chatIndex = new_state.model.chats.findIndex((e) => e.id == action.payload.id);
     const my_id = new_state.model.me.id;
+    action.payload.canHaveEarlier = true;
     for (let ml of action.payload.message_log) {
         convertMessageFromServer(ml, my_id);
     }
@@ -67,4 +68,58 @@ export function chatNewMessageFromServer(new_state, action) {
         chat.message_log.push(action.payload);
     }
 }
+
+export function chatSetTitle(new_state, action) {
+    let chat = new_state.model.chats.find((e) => e.id == action.payload.id);
+    if (!chat) return;
+    chat.title = action.payload.title;
+}
+
+export function chatDontLoadEarlier(new_state, action) {
+    let chat = new_state.model.chats.find((e) => e.id == action.payload.id);
+    if (!chat) return;
+    chat.canHaveEarlier = false;
+}
+
+export function chatLoadEarlier(new_state, action) {
+    let chat = new_state.model.chats.find((e) => e.id == action.payload.id);
+    if (!chat) return;
+    chat.canHaveEarlier = false;
+    const my_id = new_state.model.me.id;
+    if (action.payload.message_log.length != 0) {
+        chat.canHaveEarlier = true;
+        for (let ml of action.payload.message_log) {
+            convertMessageFromServer(ml, my_id);
+        }
+        let pml = chat.message_log;
+        let message_log = action.payload.message_log.concat(pml);
+        message_log.sort((a, b) => {
+            if (typeof a.id === 'undefined' || typeof b.id === 'undefined') {
+                return a.message_time - b.message_time;
+            } else {
+                return a.id - b.id;
+            }
+        });
+        chat.message_log = message_log.filter((e, i, a) => {
+            if (i == 0)
+                return true;
+            let eid = e.id || e.uniq_client_id;
+            let peid = a[i - 1].id || a[i - 1].uniq_client_id;
+            if (eid != peid)
+                return true;
+            return false;
+        });
+
+    }
+}
+
+export function chatLeaveMember(new_state, action) {
+    let chat = new_state.model.chats.find((e) => e.id == action.payload.chat_id);
+    if (!chat) return;
+    chat.member_list = chat.member_list.filter((e) => e != action.payload.member_id);
+    const my_id = new_state.model.me.id;
+    if(action.payload.member_id == my_id)
+        chat.message_log = [];
+}
+
 

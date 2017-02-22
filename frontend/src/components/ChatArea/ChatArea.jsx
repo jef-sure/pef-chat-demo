@@ -4,13 +4,14 @@ import {connect} from 'react-redux';
 import {DivFlexFixed, DivFlexRow, DivFlexStretchFill, DivFlexStretch} from '../Layout.jsx';
 import jpath from '../../lib/jpath';
 import {userColor} from '../../lib/user_color';
-import {chatJoin,sendChatMessage} from '../../actions/chatOps';
+import {chatJoin, sendChatMessage, setChatTitle, loadChatEarlier, leaveChat} from '../../actions/chatOps';
 import TextareaAutoSize from '../TextareaAutoSize.jsx';
 import InputOnClick from './InputOnClick.jsx';
 import Toggle from '../Toggle/Toggle.jsx';
 import MemberList from '../MemberList/MemberList.jsx';
 import {toggleChatMemberList} from '../../actions/toggle';
 import * as Constants from '../../actions/constants';
+import {redirectLocation} from '../HashRouter.jsx';
 
 
 function mapStateToChat(state, props) {
@@ -29,6 +30,8 @@ function mapStateToChat(state, props) {
         chat: chat,
         isNeedLoad: isNeedLoad,
         message_log: chat.message_log,
+        member_list: chat.member_list,
+        title: chat.title,
     };
 }
 /*
@@ -44,6 +47,18 @@ function checkWhetherToJoin(props) {
 const Chat = connect(mapStateToChat)(class _Chat extends React.Component {
     constructor(props) {
         super(props);
+        this.previousInput = "";
+    }
+
+    checkWhetherToLoadEarlier() {
+        if (this.props.chat && this.props.chat.canHaveEarlier && this.props.message_log.length != 0) {
+            const ch = this.chatArea.clientHeight;
+            const sh = this.mainDisplayArea.scrollHeight;
+            if (sh < ch) {
+                this.props.dispatch(loadChatEarlier(this.props.chat.id, this.props.message_log[0].message_time));
+                this.expectUpper = true;
+            }
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -51,9 +66,11 @@ const Chat = connect(mapStateToChat)(class _Chat extends React.Component {
         checkWhetherToJoin(nextProps);
     }
 
+
     componentDidMount() {
         console.log("Chat mount props: %o", this.props);
         checkWhetherToJoin(this.props);
+        this.checkWhetherToLoadEarlier();
         if (!this.chatInput)
             return;
         if (this.chatInputHeight) {
@@ -80,10 +97,15 @@ const Chat = connect(mapStateToChat)(class _Chat extends React.Component {
         const ch = this.mainDisplayArea.clientHeight;
         const st = this.mainDisplayArea.scrollTop;
         const sh = this.mainDisplayArea.scrollHeight;
+        this.psh = sh;
         if (ch < sh) {
             this.scrollPosition = st / (sh - ch);
         } else
             this.scrollPosition = 1;
+        if (st == 0 && ch < sh && this.props.chat && this.props.chat.canHaveEarlier && this.props.message_log.length != 0) {
+            this.props.dispatch(loadChatEarlier(this.props.chat.id, this.props.message_log[0].message_time));
+            this.expectUpper = true;
+        }
     }
 
     updateScrollPosition() {
@@ -100,7 +122,20 @@ const Chat = connect(mapStateToChat)(class _Chat extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        this.updateScrollPosition();
+        if (!this.mainDisplayArea)
+            return;
+        const ch = this.mainDisplayArea.clientHeight;
+        const sh = this.mainDisplayArea.scrollHeight;
+        const dsh = sh - this.psh;
+        if (dsh > 0 && sh > ch && this.expectUpper) {
+            this.expectUpper = false;
+            const st = this.mainDisplayArea.scrollTop;
+            this.mainDisplayArea.scrollTop = st + dsh;
+            this.scrollPosition = (st + dsh) / (sh - ch);
+        } else {
+            this.updateScrollPosition();
+        }
+        this.checkWhetherToLoadEarlier();
     }
 
     handleSubmit(event) {
@@ -109,6 +144,7 @@ const Chat = connect(mapStateToChat)(class _Chat extends React.Component {
             event.preventDefault();
         this.chatInput.focus();
         if (/^\s*$/.test(this.chatInput.valueOf())) return;
+        this.previousInput = this.chatInput.valueOf();
         this.props.dispatch(sendChatMessage(this.props.id, this.chatInput.valueOf()));
         this.chatInput.setState({value: ""});
         this.scrollPosition = 1;
@@ -124,9 +160,21 @@ const Chat = connect(mapStateToChat)(class _Chat extends React.Component {
         }
     }
 
+    handleKeyDown(event) {
+        if (event.keyCode === 38 /* Up */ && this.chatInput.valueOf() === "") {
+            this.chatInput.setState({value: this.previousInput});
+            this.scrollPosition = 1;
+            this.updateScrollPosition();
+        } // else if (event.keyCode === 40 /* Down */ && this.chatInput.valueOf() === this.previousInput) {
+        //     this.chatInput.setState({value: ""});
+        //     this.scrollPosition = 1;
+        //     this.updateScrollPosition();
+        // }
+    }
+
     showMessageList() {
         let messageLog = this.props.message_log;
-        return messageLog.map((item) => {
+        return messageLog.map((item, index) => {
             let bclass = item.status === Constants.MESSAGE_RECEIVED
                 ? "message_bullet_received"
                 : item.status === Constants.MESSAGE_MINE
@@ -146,6 +194,11 @@ const Chat = connect(mapStateToChat)(class _Chat extends React.Component {
                      dangerouslySetInnerHTML={{__html: item.html_message}}/>
             </div>
         })
+    }
+
+    leaveChat() {
+        this.props.dispatch(leaveChat(this.props.chat.id));
+        redirectLocation("/chat");
     }
 
     render() {
@@ -173,27 +226,48 @@ const Chat = connect(mapStateToChat)(class _Chat extends React.Component {
                         <InputOnClick
                             style={{
                                 paddingLeft: "5px",
-                                width: "100%"
+                                width: "100%",
+                                cursor: "default"
                             }}
-                            value={this.props.chat.title}
+                            className="form-control"
+                            value={this.props.title}
+                            onSubmit={(title) => {
+                                setTimeout(() => this.chatInput.focus(), 0);
+                                dispatch(setChatTitle(this.props.chat.id, title));
+                            }}
+                            returnFocus={() => setTimeout(() => this.chatInput.focus(), 0)}
                         />
                     </DivFlexStretch>
-                    <DivFlexFixed>
-                        <button style={{
-                            paddingTop: "2px",
-                            paddingBottom: "3px",
-                            borderBottomLeftRadius: "2px",
-                            borderBottomRightRadius: "2px",
-                            borderTopLeftRadius: "2px",
-                            borderTopRightRadius: "2px",
-                        }} type="button" className="btn btn-danger">Leave chat
-                        </button>
-                    </DivFlexFixed>
+                    {
+                        this.props.me.id != this.props.chat.owner_id
+                            ? <DivFlexFixed>
+                                <button type="button" className="btn btn-danger" onClick={() => this.leaveChat()}>
+                                    Leave chat
+                                </button>
+                            </DivFlexFixed>
+                            : <DivFlexFixed style={{
+                                paddingTop: 0,
+                                paddingBottom: 0,
+                            }} className="btn emergency">
+                                <div style={{lineHeight: "1em"}}>
+                                    <span style={{fontWeight: "bold"}}>🕱</span>
+                                    &nbsp;Destroy chat&nbsp;
+                                    <span style={{fontWeight: "bold"}}>🕱</span>
+                                </div>
+                                <div style={{transform: "scale(0.8)", lineHeight: "0.7em"}}>
+                                    <input type="checkbox"
+                                           ref={(r) => this.destroyChatCheck = r}
+                                           id="destroyChatCheck"
+                                    />
+                                    <label htmlFor="destroyChatCheck" style={{marginBottom: 0}}>&nbsp;I'm sure</label>
+                                </div>
+                            </DivFlexFixed>
+                    }
                 </DivFlexRow>
             </DivFlexFixed>
             <DivFlexStretchFill>
                 <DivFlexRow>
-                    <DivFlexStretch className="message_log">
+                    <DivFlexStretch refProp={(r) => this.chatArea = r} className="message_log">
                         <div className="main_display_area"
                              ref={mda => this.mainDisplayArea = mda}
                              onScroll={() => this.storeScrollPosition()}
@@ -221,6 +295,7 @@ const Chat = connect(mapStateToChat)(class _Chat extends React.Component {
                                           this.updateScrollPosition();
                                       }}
                                       onKeyPress={(e) => this.handleInput(e)}
+                                      onKeyDown={(e) => this.handleKeyDown(e)}
                                       ref={i => this.chatInput = i}
                                       id="chatInput"
                                       name="chat_input"

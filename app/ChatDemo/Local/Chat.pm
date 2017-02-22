@@ -134,8 +134,8 @@ sub load_earlier {
 		}
 	);
 	return {
-		result   => "OK",
-		messages => $messages
+		result      => "OK",
+		message_log => $messages
 	};
 }
 
@@ -294,6 +294,7 @@ sub leave_member {
 			}
 		}
 	);
+	return {result => "OK"};
 }
 
 1;

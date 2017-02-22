@@ -3,7 +3,7 @@
  * Created by anton on 13.02.17.
  */
 import wsAjax from '../lib/wsAjax';
-import {consoleLog} from './consoleLog';
+import {toServerDate} from '../lib/dateformat';
 import * as Constants from './constants';
 
 export function chatJoin(chat_id) {
@@ -16,10 +16,6 @@ export function chatJoin(chat_id) {
                     id: chat_id
                 }
             }
-        }, (response) => {
-            console.log("chat join member response: ", response);
-            if (response.body.result !== 'OK')
-                dispatch(consoleLog('error', response.body.answer));
         });
     }
 }
@@ -50,10 +46,65 @@ export function sendChatMessage(chat_id, message) {
                     uniq_client_id: uniqClientId
                 },
             }
-        }, (response) => {
-            console.log("chat send message response: ", response);
-            if (response.body.result !== 'OK')
-                dispatch(consoleLog('error', response.body.answer));
+        });
+    }
+}
+
+export function setChatTitle(chat_id, title) {
+    let ws = new wsAjax();
+    return () => {
+        ws.send({
+            ajax: {
+                method: "chat set title",
+                parameters: {
+                    id: chat_id,
+                    title: title
+                },
+            }
+        });
+    }
+}
+
+export function loadChatEarlier(chat_id, before) {
+    let ws = new wsAjax();
+    return dispatch => {
+        // dispatch({
+        //     type: Constants.CHAT_DONT_LOAD_EARLIER,
+        //     payload: {
+        //         chat_id: chat_id
+        //     }
+        // });
+        ws.send({
+                ajax: {
+                    method: "chat load earlier",
+                    parameters: {
+                        id: chat_id,
+                        load_before: toServerDate(before),
+                        limit: 20
+                    },
+                }
+            }, (response) => {
+                dispatch({
+                    type: Constants.CHAT_LOAD_EARLIER,
+                    payload: {
+                        id: chat_id,
+                        message_log: response.body.message_log
+                    }
+                });
+            }
+        );
+    }
+}
+
+export function leaveChat(chat_id) {
+    let ws = new wsAjax();
+    return () => {
+        ws.send({
+            ajax: {
+                method: "chat leave member",
+                parameters: {
+                    id: chat_id                },
+            }
         });
     }
 }

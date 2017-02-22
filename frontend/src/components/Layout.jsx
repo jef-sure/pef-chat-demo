@@ -8,7 +8,7 @@ function doNothing() {
 
 const DivClass = ({children, className, style, specialClass, refProp}) => <div
     className={className ? className + " " + specialClass : specialClass}
-    style={style ? {style: style} : {}}
+    style={style ? style : {}}
     ref={refProp ? refProp : doNothing}
 >{children}</div>;
 export const DivFlexColumn = ({children, className, style, refProp}) => <DivClass className={className}

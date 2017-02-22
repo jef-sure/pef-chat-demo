@@ -8,6 +8,7 @@ export function initializeModel(new_state, action) {
     const my_id = new_state.model.me.id;
     for (let chat of new_state.model.chats) {
         chat.created = parseDate(chat.created);
+        chat.canHaveEarlier = true;
         for (let ml of chat.message_log) {
             convertMessageFromServer(ml, my_id);
         }

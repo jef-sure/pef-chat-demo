@@ -5,7 +5,16 @@ import {clearLoginError, loginResponse, loginSubmitError} from './login'
 import {initializeModel, uninitializeModel} from './model'
 import {consoleLog, consoleLogHide} from './consoleLog'
 import {toggleHeader, toggleNav, toggleChatMemberList} from './toggle'
-import {chatJoinMember, chatData, chatAddNewMessage, chatNewMessageFromServer} from './chatOps'
+import {
+    chatJoinMember,
+    chatData,
+    chatAddNewMessage,
+    chatNewMessageFromServer,
+    chatSetTitle,
+    chatDontLoadEarlier,
+    chatLoadEarlier,
+    chatLeaveMember
+} from './chatOps'
 
 export default function reducer(state, action) {
     console.log('Reducer args: %o | %o', state, action);
@@ -59,6 +68,18 @@ export default function reducer(state, action) {
             break;
         case Constants.CHAT_MESSAGE_FROM_SERVER:
             chatNewMessageFromServer(new_state, action);
+            break;
+        case Constants.CHAT_SET_TITLE:
+            chatSetTitle(new_state, action);
+            break;
+        case Constants.CHAT_DONT_LOAD_EARLIER:
+            chatDontLoadEarlier(new_state, action);
+            break;
+        case Constants.CHAT_LOAD_EARLIER:
+            chatLoadEarlier(new_state, action);
+            break;
+        case Constants.CHAT_LEAVE:
+            chatLeaveMember(new_state, action);
             break;
     }
     return new_state;

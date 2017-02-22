@@ -120,7 +120,7 @@
 	
 	var _Main2 = _interopRequireDefault(_Main);
 	
-	var _reducer = __webpack_require__(536);
+	var _reducer = __webpack_require__(537);
 	
 	var _reducer2 = _interopRequireDefault(_reducer);
 	
@@ -53716,7 +53716,10 @@
 	var CHAT_DATA = exports.CHAT_DATA = 'chat data';
 	var CHAT_ADD_MESSAGE = exports.CHAT_ADD_MESSAGE = 'CHAT ADD MESSAGE';
 	var CHAT_MESSAGE_FROM_SERVER = exports.CHAT_MESSAGE_FROM_SERVER = 'chat new message';
-	var CHAT_LEAVE = exports.CHAT_LEAVE = 'CHAT LEAVE';
+	var CHAT_SET_TITLE = exports.CHAT_SET_TITLE = 'chat set title';
+	var CHAT_DONT_LOAD_EARLIER = exports.CHAT_DONT_LOAD_EARLIER = 'CHAT DONT LOAD EARLIER';
+	var CHAT_LOAD_EARLIER = exports.CHAT_LOAD_EARLIER = 'CHAT LOAD EARLIER';
+	var CHAT_LEAVE = exports.CHAT_LEAVE = 'chat leave member';
 	
 	var MESSAGE_MINE = exports.MESSAGE_MINE = 'MESSAGE MINE';
 	var MESSAGE_MINE_SENDING = exports.MESSAGE_MINE_SENDING = 'MESSAGE MINE SENDING';
@@ -56527,7 +56530,7 @@
 	
 	
 	// module
-	exports.push([module.id, "html, body {\n  height: 100%;\n  background-color: #ffffee;\n  padding: 0;\n  border: 0;\n  margin: 0; }\n\n#app {\n  height: 100%; }\n\n.full_height {\n  height: 100%; }\n\n.auto_height {\n  height: 100%; }\n\n.flex_column {\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-content: stretch;\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden; }\n\n.main_header {\n  min-height: 80px;\n  max-height: 80px;\n  height: 80px;\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden; }\n\n.flex_stretch {\n  padding: 0;\n  border: 0;\n  margin: 0;\n  align-self: stretch;\n  flex: 1 1 auto;\n  overflow: hidden;\n  position: relative; }\n\n.fill_abs {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: 0;\n  left: 0;\n  padding: 0;\n  border: 0;\n  margin: 0; }\n\n.flex_row {\n  display: flex;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-content: stretch;\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden;\n  height: 100%; }\n\n.flex_fixed {\n  flex: 0 0 auto; }\n\n.main_nav {\n  position: relative; }\n\n.main_nav_padding {\n  padding: 0.5em; }\n\n.padding_half_em {\n  padding: 0.5em; }\n\n.relative {\n  position: relative; }\n\n.list_no_wraps_no_discs {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  list-style: none; }\n\n.message_list {\n  overflow: hidden;\n  list-style: none;\n  margin-bottom: 0;\n  padding-left: 0;\n  word-wrap: break-word;\n  word-break: normal; }\n\n.message_list_message > p:first-child {\n  margin-bottom: 0;\n  display: inline; }\n\n.message_list_message {\n  display: inline; }\n\n.message_list_username {\n  font-weight: bold; }\n\n.message_list_time {\n  font-size: 0.93em; }\n\n.vscroll_auto {\n  overflow-y: auto; }\n\n.main_nav_tgl {\n  min-width: 1em;\n  max-width: 1em;\n  font-size: 1em;\n  align-self: stretch;\n  display: flex;\n  flex-direction: column;\n  height: 100%; }\n\n.main_nav_tgl_a {\n  text-align: center;\n  max-width: 1em;\n  display: block;\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:hover {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:visited {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:active {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:link {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_list {\n  list-style: none;\n  padding-left: 0.5em;\n  margin-bottom: 0; }\n\n.main_nav_sub_list {\n  list-style: none;\n  padding-left: 1em;\n  margin-bottom: 0; }\n\n.main_nav_section_next_3 {\n  font-size: 0.8em;\n  font-weight: normal;\n  display: block;\n  border-bottom: 1px solid #cccc99;\n  background: linear-gradient(to top, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_section_next_2 {\n  font-size: 0.9em;\n  font-weight: normal;\n  display: block;\n  border-bottom: 1px solid #cccc99;\n  background: linear-gradient(to top, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_section_next_1 {\n  font-size: 1em;\n  font-weight: normal;\n  display: block;\n  border-bottom: 1px solid #cccc99;\n  background: linear-gradient(to top, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_section_selected {\n  font-size: 1.2em;\n  font-weight: bold;\n  display: block;\n  border: 0;\n  background: linear-gradient(to bottom, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_selected_sub_item {\n  font-size: 1em;\n  font-weight: bold; }\n\n.main_nav_sub_item {\n  font-size: 1em;\n  font-weight: normal; }\n\n.flex_vr_start {\n  flex: 1 1 auto;\n  order: 1;\n  width: 1px;\n  background-color: #cccc99;\n  align-self: stretch;\n  margin-bottom: 0.25em;\n  margin-top: 0.25em; }\n\n.flex_vr_end {\n  flex: 1 1 auto;\n  order: 11;\n  width: 1px;\n  background-color: #cccc99;\n  align-self: stretch;\n  margin-bottom: 0.25em;\n  margin-top: 0.25em; }\n\n.flex_hr_start {\n  flex: 1 1 auto;\n  order: 1;\n  height: 1px;\n  background-color: #cccc99;\n  align-self: center;\n  margin-left: 0.25em;\n  margin-right: 0.25em;\n  margin-top: 1px; }\n\n.flex_hr_end {\n  flex: 1 1 auto;\n  order: 11;\n  height: 1px;\n  background-color: #cccc99;\n  align-self: center;\n  margin-left: 0.25em;\n  margin-right: 0.25em;\n  margin-top: 1px; }\n\n.flex_fixed_layout_first {\n  flex: 0 0 auto;\n  order: 1; }\n\n.flex_fixed_layout_second {\n  flex: 0 0 auto;\n  order: 2; }\n\n.flex_fixed_layout_five {\n  flex: 0 0 auto;\n  order: 5; }\n\n.flex_fixed_layout_nine {\n  flex: 0 0 auto;\n  order: 9; }\n\n.flex_fixed_layout_ten {\n  flex: 0 0 auto;\n  order: 10; }\n\n.flex_fixed_layout_eleven {\n  flex: 0 0 auto;\n  order: 11; }\n\n.main_header_tgl {\n  height: 1em;\n  max-height: 1em;\n  min-height: 1em;\n  display: flex;\n  flex-direction: row;\n  align-self: stretch;\n  margin-bottom: 0.3em; }\n\n.main_header_tgl_a {\n  height: 1em;\n  max-height: 1em;\n  min-height: 1em; }\n\n.main_header_tgl_a:hover {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_header_tgl_a:visited {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_header_tgl_a:active {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_header_tgl_a:link {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside {\n  min-width: 100px; }\n\n.main_aside_tgl {\n  min-width: 1em;\n  max-width: 1em;\n  font-size: 1em;\n  align-self: stretch;\n  display: flex;\n  flex-direction: column;\n  height: 100%; }\n\n.main_aside_tgl_a {\n  text-align: center;\n  max-width: 1em;\n  display: block;\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:hover {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:visited {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:active {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:link {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_display_area {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  max-height: 100%;\n  overflow-y: auto; }\n\n.table_custom {\n  display: table; }\n\n.table_row {\n  display: table-row; }\n\n.table_cell {\n  display: table-cell; }\n\n.time_padding {\n  padding: 2px 0.5em; }\n\n.vallign_top {\n  vertical-align: top; }\n\n.nowrap {\n  white-space: nowrap; }\n\n.message_bullet_received {\n  color: darkgreen; }\n\n.message_bullet_sending {\n  color: chocolate; }\n\n.message_bullet_mine {\n  color: lightgreen; }\n\n.message_log {\n  background-color: #fffff8; }\n\n.main_work_area_bottom textarea {\n  vertical-align: middle;\n  line-height: inherit;\n  font-family: inherit;\n  font-size: 1em;\n  padding-top: 0px;\n  padding-bottom: 0px;\n  width: 100%;\n  resize: none;\n  overflow-y: auto;\n  overflow-x: hidden;\n  box-sizing: border-box; }\n\n.main_work_area {\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-content: stretch;\n  height: 100%; }\n\n.main_work_area_bottom {\n  padding: 0.25em;\n  margin-left: 0;\n  margin-right: 0;\n  margin-top: 0;\n  margin-bottom: 0.1em;\n  border-top: 1px solid #cccc99;\n  overflow: hidden;\n  display: table;\n  width: 100%; }\n\n.table_max_cell_middle {\n  display: table-cell;\n  vertical-align: middle;\n  width: 100%; }\n\n.main_work_area_tabrow {\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden; }\n\n.orange {\n  color: #ffffee;\n  border: solid 1px #da7c0c;\n  background: #f78d1d;\n  background: -webkit-gradient(linear, left top, left bottom, from(#faa51a), to(#f47a20));\n  background: -moz-linear-gradient(top, #faa51a, #f47a20);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#faa51a', endColorstr='#f47a20'); }\n\n.orange:hover {\n  color: #ffffee;\n  background: #f47c20;\n  background: -webkit-gradient(linear, left top, left bottom, from(#f88e11), to(#f06015));\n  background: -moz-linear-gradient(top, #f88e11, #f06015);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f88e11', endColorstr='#f06015'); }\n\n.orange:active {\n  color: #ffffee;\n  background: -webkit-gradient(linear, left top, left bottom, from(#f47a20), to(#faa51a));\n  background: -moz-linear-gradient(top, #f47a20, #faa51a);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f47a20', endColorstr='#faa51a'); }\n", ""]);
+	exports.push([module.id, "html, body {\n  height: 100%;\n  background-color: #ffffee;\n  padding: 0;\n  border: 0;\n  margin: 0; }\n\n#app {\n  height: 100%; }\n\n.full_height {\n  height: 100%; }\n\n.auto_height {\n  height: 100%; }\n\n.flex_column {\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-content: stretch;\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden; }\n\n.main_header {\n  min-height: 80px;\n  max-height: 80px;\n  height: 80px;\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden; }\n\n.flex_stretch {\n  padding: 0;\n  border: 0;\n  margin: 0;\n  align-self: stretch;\n  flex: 1 1 auto;\n  overflow: hidden;\n  position: relative; }\n\n.fill_abs {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: 0;\n  left: 0;\n  padding: 0;\n  border: 0;\n  margin: 0; }\n\n.flex_row {\n  display: flex;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-content: stretch;\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden;\n  height: 100%; }\n\n.flex_fixed {\n  flex: 0 0 auto; }\n\n.main_nav {\n  position: relative; }\n\n.main_nav_padding {\n  padding: 0.5em; }\n\n.padding_half_em {\n  padding: 0.5em; }\n\n.relative {\n  position: relative; }\n\n.list_no_wraps_no_discs {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  list-style: none; }\n\n.message_list {\n  overflow: hidden;\n  list-style: none;\n  margin-bottom: 0;\n  padding-left: 0;\n  word-wrap: break-word;\n  word-break: normal; }\n\n.message_list_message > p:first-child {\n  margin-bottom: 0;\n  display: inline; }\n\n.message_list_message > h1, h2, h3, h4, h5, h6, pre {\n  margin-bottom: 2px;\n  margin-top: 2px; }\n\n.message_list_message {\n  display: inline; }\n\n.message_list_username {\n  font-weight: bold; }\n\n.message_list_time {\n  font-size: 0.93em; }\n\n.vscroll_auto {\n  overflow-y: auto; }\n\n.main_nav_tgl {\n  min-width: 1em;\n  max-width: 1em;\n  font-size: 1em;\n  align-self: stretch;\n  display: flex;\n  flex-direction: column;\n  height: 100%; }\n\n.main_nav_tgl_a {\n  text-align: center;\n  max-width: 1em;\n  display: block;\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:hover {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:visited {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:active {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_tgl_a:link {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_nav_list {\n  list-style: none;\n  padding-left: 0.5em;\n  margin-bottom: 0; }\n\n.main_nav_sub_list {\n  list-style: none;\n  padding-left: 1em;\n  margin-bottom: 0; }\n\n.main_nav_section_next_3 {\n  font-size: 0.8em;\n  font-weight: normal;\n  display: block;\n  border-bottom: 1px solid #cccc99;\n  background: linear-gradient(to top, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_section_next_2 {\n  font-size: 0.9em;\n  font-weight: normal;\n  display: block;\n  border-bottom: 1px solid #cccc99;\n  background: linear-gradient(to top, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_section_next_1 {\n  font-size: 1em;\n  font-weight: normal;\n  display: block;\n  border-bottom: 1px solid #cccc99;\n  background: linear-gradient(to top, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_section_selected {\n  font-size: 1.2em;\n  font-weight: bold;\n  display: block;\n  border: 0;\n  background: linear-gradient(to bottom, #f0f0d0 50%, #ffffee 100%); }\n\n.main_nav_selected_sub_item {\n  font-size: 1em;\n  font-weight: bold; }\n\n.main_nav_sub_item {\n  font-size: 1em;\n  font-weight: normal; }\n\n.flex_vr_start {\n  flex: 1 1 auto;\n  order: 1;\n  width: 1px;\n  background-color: #cccc99;\n  align-self: stretch;\n  margin-bottom: 0.25em;\n  margin-top: 0.25em; }\n\n.flex_vr_end {\n  flex: 1 1 auto;\n  order: 11;\n  width: 1px;\n  background-color: #cccc99;\n  align-self: stretch;\n  margin-bottom: 0.25em;\n  margin-top: 0.25em; }\n\n.flex_hr_start {\n  flex: 1 1 auto;\n  order: 1;\n  height: 1px;\n  background-color: #cccc99;\n  align-self: center;\n  margin-left: 0.25em;\n  margin-right: 0.25em;\n  margin-top: 1px; }\n\n.flex_hr_end {\n  flex: 1 1 auto;\n  order: 11;\n  height: 1px;\n  background-color: #cccc99;\n  align-self: center;\n  margin-left: 0.25em;\n  margin-right: 0.25em;\n  margin-top: 1px; }\n\n.flex_fixed_layout_first {\n  flex: 0 0 auto;\n  order: 1; }\n\n.flex_fixed_layout_second {\n  flex: 0 0 auto;\n  order: 2; }\n\n.flex_fixed_layout_five {\n  flex: 0 0 auto;\n  order: 5; }\n\n.flex_fixed_layout_nine {\n  flex: 0 0 auto;\n  order: 9; }\n\n.flex_fixed_layout_ten {\n  flex: 0 0 auto;\n  order: 10; }\n\n.flex_fixed_layout_eleven {\n  flex: 0 0 auto;\n  order: 11; }\n\n.main_header_tgl {\n  height: 1em;\n  max-height: 1em;\n  min-height: 1em;\n  display: flex;\n  flex-direction: row;\n  align-self: stretch;\n  margin-bottom: 0.3em; }\n\n.main_header_tgl_a {\n  height: 1em;\n  max-height: 1em;\n  min-height: 1em; }\n\n.main_header_tgl_a:hover {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_header_tgl_a:visited {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_header_tgl_a:active {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_header_tgl_a:link {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside {\n  min-width: 100px; }\n\n.main_aside_tgl {\n  min-width: 1em;\n  max-width: 1em;\n  font-size: 1em;\n  align-self: stretch;\n  display: flex;\n  flex-direction: column;\n  height: 100%; }\n\n.main_aside_tgl_a {\n  text-align: center;\n  max-width: 1em;\n  display: block;\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:hover {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:visited {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:active {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_aside_tgl_a:link {\n  cursor: pointer;\n  text-decoration: none; }\n\n.main_display_area {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  max-height: 100%;\n  overflow-y: auto; }\n\n.table_custom {\n  display: table; }\n\n.table_row {\n  display: table-row; }\n\n.table_cell {\n  display: table-cell; }\n\n.time_padding {\n  padding: 2px 0.5em; }\n\n.vallign_top {\n  vertical-align: top; }\n\n.nowrap {\n  white-space: nowrap; }\n\n.message_bullet_received {\n  color: darkgreen; }\n\n.message_bullet_sending {\n  color: chocolate; }\n\n.message_bullet_mine {\n  color: lightgreen; }\n\n.message_log {\n  background-color: #fffff8; }\n\n.main_work_area_bottom textarea {\n  vertical-align: middle;\n  line-height: inherit;\n  font-family: inherit;\n  font-size: 1em;\n  padding-top: 0px;\n  padding-bottom: 0px;\n  width: 100%;\n  resize: none;\n  overflow-y: auto;\n  overflow-x: hidden;\n  box-sizing: border-box; }\n\n.main_work_area {\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-content: stretch;\n  height: 100%; }\n\n.main_work_area_bottom {\n  padding: 0.25em;\n  margin-left: 0;\n  margin-right: 0;\n  margin-top: 0;\n  margin-bottom: 0.1em;\n  border-top: 1px solid #cccc99;\n  overflow: hidden;\n  display: table;\n  width: 100%; }\n\n.table_max_cell_middle {\n  display: table-cell;\n  vertical-align: middle;\n  width: 100%; }\n\n.main_work_area_tabrow {\n  padding: 0;\n  border: 0;\n  margin: 0;\n  overflow: hidden; }\n\n.orange {\n  color: #ffffee;\n  border: solid 1px #da7c0c;\n  background: #f78d1d;\n  background: -webkit-gradient(linear, left top, left bottom, from(#faa51a), to(#f47a20));\n  background: -moz-linear-gradient(top, #faa51a, #f47a20);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#faa51a', endColorstr='#f47a20'); }\n\n.orange:hover {\n  color: #ffffee;\n  background: #f47c20;\n  background: -webkit-gradient(linear, left top, left bottom, from(#f88e11), to(#f06015));\n  background: -moz-linear-gradient(top, #f88e11, #f06015);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f88e11', endColorstr='#f06015'); }\n\n.orange:active {\n  color: #ffffee;\n  background: -webkit-gradient(linear, left top, left bottom, from(#f47a20), to(#faa51a));\n  background: -moz-linear-gradient(top, #f47a20, #faa51a);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f47a20', endColorstr='#faa51a'); }\n\n.emergency {\n  color: #ffffee;\n  border: solid 1px #800000;\n  background: #A00000;\n  background: -webkit-gradient(linear, left top, left bottom, from(#c00000), to(#880000));\n  background: -moz-linear-gradient(top, #c00000, #880000);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#c00000', endColorstr='#880000'); }\n\n.emergency:hover {\n  color: #ffffee;\n  background: #900000;\n  background: -webkit-gradient(linear, left top, left bottom, from(#B00000), to(#800000));\n  background: -moz-linear-gradient(top, #B00000, #800000);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#B00000', endColorstr='#800000'); }\n\n.emergency:active {\n  color: #ffffee;\n  background: -webkit-gradient(linear, left top, left bottom, from(#880000), to(#c00000));\n  background: -moz-linear-gradient(top, #880000, #c00000);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#880000', endColorstr='#c00000'); }\n", ""]);
 	
 	// exports
 	exports.locals = {
@@ -56680,14 +56683,21 @@
 	
 	        _this.maxNavString = navStruct.reduce(function (a, c) {
 	            return c.name.length > a.length ? c.name : a;
-	        }) + "WW";
+	        }, "") + "WWWWW";
+	        _this.maxNavStringInitial = _this.maxNavString;
 	        return _this;
 	    }
 	
 	    _createClass(Nav, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
+	            var _this2 = this;
+	
 	            this.recalcMinWidth();
+	            this.forceUpdate = function () {
+	                return _this2.recalcMinWidth();
+	            };
+	            window.addEventListener('resize', this.forceUpdate);
 	        }
 	    }, {
 	        key: 'componentDidUpdate',
@@ -56695,9 +56705,14 @@
 	            this.recalcMinWidth();
 	        }
 	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            window.removeEventListener('resize', this.forceUpdate);
+	        }
+	    }, {
 	        key: 'recalcMinWidth',
 	        value: function recalcMinWidth() {
-	            var _this2 = this;
+	            var _this3 = this;
 	
 	            var model = this.props.model;
 	            var _iteratorNormalCompletion = true;
@@ -56708,9 +56723,9 @@
 	                var _loop = function _loop() {
 	                    var ns = _step.value;
 	
-	                    _this2.maxNavString = model[ns.modelKey].reduce(function (a, c) {
+	                    _this3.maxNavString = model[ns.modelKey].reduce(function (a, c) {
 	                        return c[ns.titleKey].length > a.length ? c[ns.titleKey] : a;
-	                    }, _this2.maxNavString) + "WWW";
+	                    }, _this3.maxNavStringInitial) + "WWWWW";
 	                };
 	
 	                for (var _iterator = navStruct[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
@@ -56748,14 +56763,14 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this3 = this;
+	            var _this4 = this;
 	
 	            var model = this.props.model;
 	
 	            return _react2.default.createElement(
 	                _Layout.DivFlexFixed,
 	                { className: 'relative', refProp: function refProp(e) {
-	                        return _this3.mainNav = e;
+	                        return _this4.mainNav = e;
 	                    } },
 	                _react2.default.createElement(
 	                    _Layout.DivPaddingFill,
@@ -56838,7 +56853,7 @@
 	        "div",
 	        {
 	            className: className ? className + " " + specialClass : specialClass,
-	            style: style ? { style: style } : {},
+	            style: style ? style : {},
 	            ref: refProp ? refProp : doNothing
 	        },
 	        children
@@ -57262,11 +57277,11 @@
 	
 	var _chatOps = __webpack_require__(532);
 	
-	var _TextareaAutoSize = __webpack_require__(533);
+	var _TextareaAutoSize = __webpack_require__(534);
 	
 	var _TextareaAutoSize2 = _interopRequireDefault(_TextareaAutoSize);
 	
-	var _InputOnClick = __webpack_require__(534);
+	var _InputOnClick = __webpack_require__(535);
 	
 	var _InputOnClick2 = _interopRequireDefault(_InputOnClick);
 	
@@ -57274,7 +57289,7 @@
 	
 	var _Toggle2 = _interopRequireDefault(_Toggle);
 	
-	var _MemberList = __webpack_require__(535);
+	var _MemberList = __webpack_require__(536);
 	
 	var _MemberList2 = _interopRequireDefault(_MemberList);
 	
@@ -57283,6 +57298,8 @@
 	var _constants = __webpack_require__(473);
 	
 	var Constants = _interopRequireWildcard(_constants);
+	
+	var _HashRouter = __webpack_require__(525);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
@@ -57312,7 +57329,9 @@
 	        isChatMemberListOn: state.visual.isChatMemberListOn,
 	        chat: chat,
 	        isNeedLoad: isNeedLoad,
-	        message_log: chat.message_log
+	        message_log: chat.message_log,
+	        member_list: chat.member_list,
+	        title: chat.title
 	    };
 	}
 	/*
@@ -57330,10 +57349,25 @@
 	    function _Chat(props) {
 	        _classCallCheck(this, _Chat);
 	
-	        return _possibleConstructorReturn(this, (_Chat.__proto__ || Object.getPrototypeOf(_Chat)).call(this, props));
+	        var _this = _possibleConstructorReturn(this, (_Chat.__proto__ || Object.getPrototypeOf(_Chat)).call(this, props));
+	
+	        _this.previousInput = "";
+	        return _this;
 	    }
 	
 	    _createClass(_Chat, [{
+	        key: 'checkWhetherToLoadEarlier',
+	        value: function checkWhetherToLoadEarlier() {
+	            if (this.props.chat && this.props.chat.canHaveEarlier && this.props.message_log.length != 0) {
+	                var ch = this.chatArea.clientHeight;
+	                var sh = this.mainDisplayArea.scrollHeight;
+	                if (sh < ch) {
+	                    this.props.dispatch((0, _chatOps.loadChatEarlier)(this.props.chat.id, this.props.message_log[0].message_time));
+	                    this.expectUpper = true;
+	                }
+	            }
+	        }
+	    }, {
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(nextProps) {
 	            console.log("Chat next props: %o -> %o", this.props, nextProps);
@@ -57344,6 +57378,7 @@
 	        value: function componentDidMount() {
 	            console.log("Chat mount props: %o", this.props);
 	            checkWhetherToJoin(this.props);
+	            this.checkWhetherToLoadEarlier();
 	            if (!this.chatInput) return;
 	            if (this.chatInputHeight) {
 	                this.chatInputButton.style.height = this.chatInputHeight;
@@ -57369,9 +57404,14 @@
 	            var ch = this.mainDisplayArea.clientHeight;
 	            var st = this.mainDisplayArea.scrollTop;
 	            var sh = this.mainDisplayArea.scrollHeight;
+	            this.psh = sh;
 	            if (ch < sh) {
 	                this.scrollPosition = st / (sh - ch);
 	            } else this.scrollPosition = 1;
+	            if (st == 0 && ch < sh && this.props.chat && this.props.chat.canHaveEarlier && this.props.message_log.length != 0) {
+	                this.props.dispatch((0, _chatOps.loadChatEarlier)(this.props.chat.id, this.props.message_log[0].message_time));
+	                this.expectUpper = true;
+	            }
 	        }
 	    }, {
 	        key: 'updateScrollPosition',
@@ -57389,7 +57429,19 @@
 	    }, {
 	        key: 'componentDidUpdate',
 	        value: function componentDidUpdate(prevProps) {
-	            this.updateScrollPosition();
+	            if (!this.mainDisplayArea) return;
+	            var ch = this.mainDisplayArea.clientHeight;
+	            var sh = this.mainDisplayArea.scrollHeight;
+	            var dsh = sh - this.psh;
+	            if (dsh > 0 && sh > ch && this.expectUpper) {
+	                this.expectUpper = false;
+	                var st = this.mainDisplayArea.scrollTop;
+	                this.mainDisplayArea.scrollTop = st + dsh;
+	                this.scrollPosition = (st + dsh) / (sh - ch);
+	            } else {
+	                this.updateScrollPosition();
+	            }
+	            this.checkWhetherToLoadEarlier();
 	        }
 	    }, {
 	        key: 'handleSubmit',
@@ -57398,6 +57450,7 @@
 	            if (event) event.preventDefault();
 	            this.chatInput.focus();
 	            if (/^\s*$/.test(this.chatInput.valueOf())) return;
+	            this.previousInput = this.chatInput.valueOf();
 	            this.props.dispatch((0, _chatOps.sendChatMessage)(this.props.id, this.chatInput.valueOf()));
 	            this.chatInput.setState({ value: "" });
 	            this.scrollPosition = 1;
@@ -57414,12 +57467,25 @@
 	            }
 	        }
 	    }, {
+	        key: 'handleKeyDown',
+	        value: function handleKeyDown(event) {
+	            if (event.keyCode === 38 /* Up */ && this.chatInput.valueOf() === "") {
+	                this.chatInput.setState({ value: this.previousInput });
+	                this.scrollPosition = 1;
+	                this.updateScrollPosition();
+	            } // else if (event.keyCode === 40 /* Down */ && this.chatInput.valueOf() === this.previousInput) {
+	            //     this.chatInput.setState({value: ""});
+	            //     this.scrollPosition = 1;
+	            //     this.updateScrollPosition();
+	            // }
+	        }
+	    }, {
 	        key: 'showMessageList',
 	        value: function showMessageList() {
 	            var _this2 = this;
 	
 	            var messageLog = this.props.message_log;
-	            return messageLog.map(function (item) {
+	            return messageLog.map(function (item, index) {
 	                var bclass = item.status === Constants.MESSAGE_RECEIVED ? "message_bullet_received" : item.status === Constants.MESSAGE_MINE ? "message_bullet_mine" : "message_bullet_sending";
 	                var user = (0, _jpath2.default)(_this2.props.model.members, function (m) {
 	                    return m.id === item.member_id;
@@ -57455,6 +57521,12 @@
 	                        dangerouslySetInnerHTML: { __html: item.html_message } })
 	                );
 	            });
+	        }
+	    }, {
+	        key: 'leaveChat',
+	        value: function leaveChat() {
+	            this.props.dispatch((0, _chatOps.leaveChat)(this.props.chat.id));
+	            (0, _HashRouter.redirectLocation)("/chat");
 	        }
 	    }, {
 	        key: 'render',
@@ -57512,25 +57584,69 @@
 	                            _react2.default.createElement(_InputOnClick2.default, {
 	                                style: {
 	                                    paddingLeft: "5px",
-	                                    width: "100%"
+	                                    width: "100%",
+	                                    cursor: "default"
 	                                },
-	                                value: this.props.chat.title
+	                                className: 'form-control',
+	                                value: this.props.title,
+	                                onSubmit: function onSubmit(title) {
+	                                    setTimeout(function () {
+	                                        return _this3.chatInput.focus();
+	                                    }, 0);
+	                                    dispatch((0, _chatOps.setChatTitle)(_this3.props.chat.id, title));
+	                                },
+	                                returnFocus: function returnFocus() {
+	                                    return setTimeout(function () {
+	                                        return _this3.chatInput.focus();
+	                                    }, 0);
+	                                }
 	                            })
 	                        ),
-	                        _react2.default.createElement(
+	                        this.props.me.id != this.props.chat.owner_id ? _react2.default.createElement(
 	                            _Layout.DivFlexFixed,
 	                            null,
 	                            _react2.default.createElement(
 	                                'button',
-	                                { style: {
-	                                        paddingTop: "2px",
-	                                        paddingBottom: "3px",
-	                                        borderBottomLeftRadius: "2px",
-	                                        borderBottomRightRadius: "2px",
-	                                        borderTopLeftRadius: "2px",
-	                                        borderTopRightRadius: "2px"
-	                                    }, type: 'button', className: 'btn btn-danger' },
+	                                { type: 'button', className: 'btn btn-danger', onClick: function onClick() {
+	                                        return _this3.leaveChat();
+	                                    } },
 	                                'Leave chat'
+	                            )
+	                        ) : _react2.default.createElement(
+	                            _Layout.DivFlexFixed,
+	                            { style: {
+	                                    paddingTop: 0,
+	                                    paddingBottom: 0
+	                                }, className: 'btn emergency' },
+	                            _react2.default.createElement(
+	                                'div',
+	                                { style: { lineHeight: "1em" } },
+	                                _react2.default.createElement(
+	                                    'span',
+	                                    { style: { fontWeight: "bold" } },
+	                                    '\uD83D\uDD71'
+	                                ),
+	                                '\xA0Destroy chat\xA0',
+	                                _react2.default.createElement(
+	                                    'span',
+	                                    { style: { fontWeight: "bold" } },
+	                                    '\uD83D\uDD71'
+	                                )
+	                            ),
+	                            _react2.default.createElement(
+	                                'div',
+	                                { style: { transform: "scale(0.8)", lineHeight: "0.7em" } },
+	                                _react2.default.createElement('input', { type: 'checkbox',
+	                                    ref: function ref(r) {
+	                                        return _this3.destroyChatCheck = r;
+	                                    },
+	                                    id: 'destroyChatCheck'
+	                                }),
+	                                _react2.default.createElement(
+	                                    'label',
+	                                    { htmlFor: 'destroyChatCheck', style: { marginBottom: 0 } },
+	                                    '\xA0I\'m sure'
+	                                )
 	                            )
 	                        )
 	                    )
@@ -57543,7 +57659,9 @@
 	                        null,
 	                        _react2.default.createElement(
 	                            _Layout.DivFlexStretch,
-	                            { className: 'message_log' },
+	                            { refProp: function refProp(r) {
+	                                    return _this3.chatArea = r;
+	                                }, className: 'message_log' },
 	                            _react2.default.createElement(
 	                                'div',
 	                                { className: 'main_display_area',
@@ -57585,6 +57703,9 @@
 	                            },
 	                            onKeyPress: function onKeyPress(e) {
 	                                return _this3.handleInput(e);
+	                            },
+	                            onKeyDown: function onKeyDown(e) {
+	                                return _this3.handleKeyDown(e);
 	                            },
 	                            ref: function ref(i) {
 	                                return _this3.chatInput = i;
@@ -57806,12 +57927,15 @@
 	});
 	exports.chatJoin = chatJoin;
 	exports.sendChatMessage = sendChatMessage;
+	exports.setChatTitle = setChatTitle;
+	exports.loadChatEarlier = loadChatEarlier;
+	exports.leaveChat = leaveChat;
 	
 	var _wsAjax = __webpack_require__(501);
 	
 	var _wsAjax2 = _interopRequireDefault(_wsAjax);
 	
-	var _consoleLog = __webpack_require__(500);
+	var _dateformat = __webpack_require__(533);
 	
 	var _constants = __webpack_require__(473);
 	
@@ -57831,9 +57955,6 @@
 	                    id: chat_id
 	                }
 	            }
-	        }, function (response) {
-	            console.log("chat join member response: ", response);
-	            if (response.body.result !== 'OK') dispatch((0, _consoleLog.consoleLog)('error', response.body.answer));
 	        });
 	    };
 	}function sendChatMessage(chat_id, message) {
@@ -57862,9 +57983,64 @@
 	                    uniq_client_id: uniqClientId
 	                }
 	            }
+	        });
+	    };
+	}
+	
+	function setChatTitle(chat_id, title) {
+	    var ws = new _wsAjax2.default();
+	    return function () {
+	        ws.send({
+	            ajax: {
+	                method: "chat set title",
+	                parameters: {
+	                    id: chat_id,
+	                    title: title
+	                }
+	            }
+	        });
+	    };
+	}
+	
+	function loadChatEarlier(chat_id, before) {
+	    var ws = new _wsAjax2.default();
+	    return function (dispatch) {
+	        // dispatch({
+	        //     type: Constants.CHAT_DONT_LOAD_EARLIER,
+	        //     payload: {
+	        //         chat_id: chat_id
+	        //     }
+	        // });
+	        ws.send({
+	            ajax: {
+	                method: "chat load earlier",
+	                parameters: {
+	                    id: chat_id,
+	                    load_before: (0, _dateformat.toServerDate)(before),
+	                    limit: 20
+	                }
+	            }
 	        }, function (response) {
-	            console.log("chat send message response: ", response);
-	            if (response.body.result !== 'OK') dispatch((0, _consoleLog.consoleLog)('error', response.body.answer));
+	            dispatch({
+	                type: Constants.CHAT_LOAD_EARLIER,
+	                payload: {
+	                    id: chat_id,
+	                    message_log: response.body.message_log
+	                }
+	            });
+	        });
+	    };
+	}
+	
+	function leaveChat(chat_id) {
+	    var ws = new _wsAjax2.default();
+	    return function () {
+	        ws.send({
+	            ajax: {
+	                method: "chat leave member",
+	                parameters: {
+	                    id: chat_id }
+	            }
 	        });
 	    };
 	}
@@ -57872,6 +58048,26 @@
 
 /***/ },
 /* 533 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.parseDate = parseDate;
+	exports.toServerDate = toServerDate;
+	function parseDate(dateFromServer) {
+	  var isoStr = dateFromServer.replace(' ', 'T').replace(/([+-]\d\d)$/, '$1:00').replace(/([+-]\d\d)(\d\d)$/, '$1:$2');
+	  return new Date(isoStr);
+	}
+	
+	function toServerDate(date) {
+	  return date.toISOString();
+	}
+
+/***/ },
+/* 534 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -57984,7 +58180,7 @@
 	exports.default = TextareaAutoSize;
 
 /***/ },
-/* 534 */
+/* 535 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -58025,8 +58221,7 @@
 	        _this.state = {
 	            isActive: false,
 	            initialValue: _this.props.value || "",
-	            value: _this.props.value || "",
-	            storedValue: _this.props.value || ""
+	            value: _this.props.value || ""
 	        };
 	        _this.lastSubmitValue = _this.props.value || "";
 	        _this.inputProps = {};
@@ -58037,6 +58232,15 @@
 	    }
 	
 	    _createClass(InputOnClick, [{
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(nextProps) {
+	            if (this.state.initialValue !== nextProps.value) this.setState({
+	                value: nextProps.value,
+	                initialValue: nextProps.value,
+	                isActive: false
+	            });
+	        }
+	    }, {
 	        key: 'valueOf',
 	        value: function valueOf() {
 	            return this.state.value;
@@ -58064,7 +58268,7 @@
 	                event.preventDefault();
 	                this.setState({
 	                    isActive: false,
-	                    value: this.state.storedValue
+	                    value: this.state.initialValue
 	                });
 	            }
 	            this.lastKey = key;
@@ -58075,14 +58279,32 @@
 	            if (event) event.preventDefault();
 	            if (this.state.value === this.lastSubmitValue) return;
 	            this.lastSubmitValue = this.state.value;
-	            console.log("chatInput: %o", this.state.value);
+	            this.setState({ initialValue: this.state.value });
 	            if (this.props.onSubmit) this.props.onSubmit(this.state.value);
-	            this.setState({ storedValue: this.state.value });
+	        }
+	    }, {
+	        key: 'onMouseEnter',
+	        value: function onMouseEnter() {
+	            var _this2 = this;
+	
+	            this.setState({ isActive: true });
+	            this.clicked = false;
+	            setTimeout(function () {
+	                return _this2.input.focus();
+	            }, 0);
+	        }
+	    }, {
+	        key: 'onMouseLeave',
+	        value: function onMouseLeave() {
+	            if (!this.clicked && this.state.value === this.state.initialValue) {
+	                this.setState({ isActive: false });
+	                if (this.props.returnFocus) this.props.returnFocus();
+	            }
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this2 = this;
+	            var _this3 = this;
 	
 	            var divStyle = {
 	                display: "inline-block",
@@ -58092,31 +58314,31 @@
 	            return _react2.default.createElement(
 	                'div',
 	                { style: divStyle,
-	                    onClick: function onClick(e) {
-	                        e.preventDefault();
-	                        _this2.setState({
-	                            isActive: true,
-	                            storedValue: _this2.state.value
-	                        });
-	                        setTimeout(function () {
-	                            return _this2.input.focus();
-	                        }, 0);
-	                    } },
+	                    onMouseEnter: function onMouseEnter() {
+	                        return _this3.onMouseEnter();
+	                    },
+	                    onMouseLeave: function onMouseLeave() {
+	                        return _this3.onMouseLeave();
+	                    },
+	                    onClick: function onClick() {
+	                        _this3.clicked = true;
+	                    }
+	                },
 	                _react2.default.createElement('input', _extends({ type: 'text' }, this.inputProps, {
 	                    disabled: !this.state.isActive,
 	                    value: this.state.value,
 	                    onChange: function onChange(e) {
-	                        return _this2.handleChange(e);
+	                        return _this3.handleChange(e);
 	                    },
 	                    ref: function ref(r) {
-	                        return _this2.input = r;
+	                        return _this3.input = r;
 	                    },
 	                    onKeyDown: function onKeyDown(e) {
-	                        _this2.handleInput(e);
+	                        _this3.handleInput(e);
 	                    },
 	                    onBlur: function onBlur(e) {
-	                        _this2.setState({ isActive: false });
-	                        _this2.handleSubmit(e);
+	                        _this3.setState({ isActive: false });
+	                        _this3.handleSubmit(e);
 	                    }
 	                }))
 	            );
@@ -58129,7 +58351,7 @@
 	exports.default = InputOnClick;
 
 /***/ },
-/* 535 */
+/* 536 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -58174,7 +58396,23 @@
 	    _createClass(MemberList, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
+	            var _this2 = this;
+	
 	            this.recalcMinWidth();
+	            this.forceUpdate = function () {
+	                return _this2.recalcMinWidth();
+	            };
+	            window.addEventListener('resize', this.forceUpdate);
+	        }
+	    }, {
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(nextProps) {
+	            console.log("MemberList will receive props: ", nextProps);
+	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            window.removeEventListener('resize', this.forceUpdate);
 	        }
 	    }, {
 	        key: 'componentDidUpdate',
@@ -58193,8 +58431,8 @@
 	                    return m.id === c;
 	                }, '0/login');
 	                return u.length > a.length ? u : a;
-	            }, "WWWW");
-	            maxNavString += "WW";
+	            }, "WWWWWWW");
+	            maxNavString += "WWWWW";
 	            this.minNavWidth = Math.min((0, _measure_text_width.measureTextWidth)(maxNavString, this.memberList), document.documentElement.clientWidth / 3);
 	            this.setMinWidth(this.minNavWidth + 'px');
 	        }
@@ -58211,7 +58449,7 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this2 = this;
+	            var _this3 = this;
 	
 	            var _props2 = this.props,
 	                member_list = _props2.member_list,
@@ -58220,7 +58458,7 @@
 	            return _react2.default.createElement(
 	                _Layout.DivFlexFixed,
 	                { className: 'relative', refProp: function refProp(e) {
-	                        return _this2.memberList = e;
+	                        return _this3.memberList = e;
 	                    } },
 	                _react2.default.createElement(
 	                    _Layout.DivPaddingFill,
@@ -58254,21 +58492,20 @@
 	                                _react2.default.createElement(
 	                                    'ul',
 	                                    { className: 'main_nav_sub_list' },
-	                                    _react2.default.createElement(
-	                                        'li',
-	                                        { className: 'list_no_wraps_no_discs' },
-	                                        member_list.map(function (item, index) {
-	                                            return _react2.default.createElement(
+	                                    member_list.map(function (item, index) {
+	                                        return _react2.default.createElement(
+	                                            'li',
+	                                            { className: 'list_no_wraps_no_discs', key: item },
+	                                            _react2.default.createElement(
 	                                                _HashRouter.Link,
-	                                                { key: index + "-" + item,
-	                                                    className: 'main_nav_sub_item',
+	                                                { className: 'main_nav_sub_item',
 	                                                    to: "/member/" + item },
 	                                                (0, _jpath2.default)(members, function (m) {
 	                                                    return m.id === item;
 	                                                }, '0/login')
-	                                            );
-	                                        })
-	                                    )
+	                                            )
+	                                        );
+	                                    })
 	                                )
 	                            )
 	                        )
@@ -58284,7 +58521,7 @@
 	exports.default = MemberList;
 
 /***/ },
-/* 536 */
+/* 537 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -58298,11 +58535,11 @@
 	
 	var Constants = _interopRequireWildcard(_constants);
 	
-	var _main = __webpack_require__(537);
+	var _main = __webpack_require__(538);
 	
-	var _login = __webpack_require__(538);
+	var _login = __webpack_require__(539);
 	
-	var _model = __webpack_require__(539);
+	var _model = __webpack_require__(540);
 	
 	var _consoleLog = __webpack_require__(542);
 	
@@ -58363,12 +58600,24 @@
 	        case Constants.CHAT_MESSAGE_FROM_SERVER:
 	            (0, _chatOps.chatNewMessageFromServer)(new_state, action);
 	            break;
+	        case Constants.CHAT_SET_TITLE:
+	            (0, _chatOps.chatSetTitle)(new_state, action);
+	            break;
+	        case Constants.CHAT_DONT_LOAD_EARLIER:
+	            (0, _chatOps.chatDontLoadEarlier)(new_state, action);
+	            break;
+	        case Constants.CHAT_LOAD_EARLIER:
+	            (0, _chatOps.chatLoadEarlier)(new_state, action);
+	            break;
+	        case Constants.CHAT_LEAVE:
+	            (0, _chatOps.chatLeaveMember)(new_state, action);
+	            break;
 	    }
 	    return new_state;
 	}
 
 /***/ },
-/* 537 */
+/* 538 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -58402,7 +58651,7 @@
 	}
 
 /***/ },
-/* 538 */
+/* 539 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -58440,7 +58689,7 @@
 	}
 
 /***/ },
-/* 539 */
+/* 540 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -58451,7 +58700,7 @@
 	exports.initializeModel = initializeModel;
 	exports.uninitializeModel = uninitializeModel;
 	
-	var _dateformat = __webpack_require__(540);
+	var _dateformat = __webpack_require__(533);
 	
 	var _messageFromServer = __webpack_require__(541);
 	
@@ -58473,6 +58722,7 @@
 	            var chat = _step.value;
 	
 	            chat.created = (0, _dateformat.parseDate)(chat.created);
+	            chat.canHaveEarlier = true;
 	            var _iteratorNormalCompletion2 = true;
 	            var _didIteratorError2 = false;
 	            var _iteratorError2 = undefined;
@@ -58520,26 +58770,6 @@
 	}
 
 /***/ },
-/* 540 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.parseDate = parseDate;
-	exports.toServerDate = toServerDate;
-	function parseDate(dateFromServer) {
-	  var isoStr = dateFromServer.replace(' ', 'T').replace(/([+-]\d\d)$/, '$1:00').replace(/([+-]\d\d)(\d\d)$/, '$1:$2');
-	  return new Date(isoStr);
-	}
-	
-	function toServerDate(date) {
-	  return date.toISOString();
-	}
-
-/***/ },
 /* 541 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -58550,7 +58780,7 @@
 	});
 	exports.convertMessageFromServer = convertMessageFromServer;
 	
-	var _dateformat = __webpack_require__(540);
+	var _dateformat = __webpack_require__(533);
 	
 	var _constants = __webpack_require__(473);
 	
@@ -58631,8 +58861,12 @@
 	exports.chatData = chatData;
 	exports.chatAddNewMessage = chatAddNewMessage;
 	exports.chatNewMessageFromServer = chatNewMessageFromServer;
+	exports.chatSetTitle = chatSetTitle;
+	exports.chatDontLoadEarlier = chatDontLoadEarlier;
+	exports.chatLoadEarlier = chatLoadEarlier;
+	exports.chatLeaveMember = chatLeaveMember;
 	
-	var _dateformat = __webpack_require__(540);
+	var _dateformat = __webpack_require__(533);
 	
 	var _messageFromServer = __webpack_require__(541);
 	
@@ -58652,7 +58886,7 @@
 	    });
 	    if (typeof am === 'undefined') {
 	        chat.member_list = Object.assign([], chat.member_list);
-	        chat.member_list.push(member_id);
+	        chat.member_list.push(action.payload.member_id);
 	    }
 	}
 	
@@ -58661,6 +58895,7 @@
 	        return e.id == action.payload.id;
 	    });
 	    var my_id = new_state.model.me.id;
+	    action.payload.canHaveEarlier = true;
 	    var _iteratorNormalCompletion = true;
 	    var _didIteratorError = false;
 	    var _iteratorError = undefined;
@@ -58735,6 +58970,87 @@
 	        (0, _messageFromServer.convertMessageFromServer)(action.payload, my_id);
 	        chat.message_log.push(action.payload);
 	    }
+	}
+	
+	function chatSetTitle(new_state, action) {
+	    var chat = new_state.model.chats.find(function (e) {
+	        return e.id == action.payload.id;
+	    });
+	    if (!chat) return;
+	    chat.title = action.payload.title;
+	}
+	
+	function chatDontLoadEarlier(new_state, action) {
+	    var chat = new_state.model.chats.find(function (e) {
+	        return e.id == action.payload.id;
+	    });
+	    if (!chat) return;
+	    chat.canHaveEarlier = false;
+	}
+	
+	function chatLoadEarlier(new_state, action) {
+	    var chat = new_state.model.chats.find(function (e) {
+	        return e.id == action.payload.id;
+	    });
+	    if (!chat) return;
+	    chat.canHaveEarlier = false;
+	    var my_id = new_state.model.me.id;
+	    if (action.payload.message_log.length != 0) {
+	        chat.canHaveEarlier = true;
+	        var _iteratorNormalCompletion2 = true;
+	        var _didIteratorError2 = false;
+	        var _iteratorError2 = undefined;
+	
+	        try {
+	            for (var _iterator2 = action.payload.message_log[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                var ml = _step2.value;
+	
+	                (0, _messageFromServer.convertMessageFromServer)(ml, my_id);
+	            }
+	        } catch (err) {
+	            _didIteratorError2 = true;
+	            _iteratorError2 = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	                    _iterator2.return();
+	                }
+	            } finally {
+	                if (_didIteratorError2) {
+	                    throw _iteratorError2;
+	                }
+	            }
+	        }
+	
+	        var pml = chat.message_log;
+	        var message_log = action.payload.message_log.concat(pml);
+	        message_log.sort(function (a, b) {
+	            if (typeof a.id === 'undefined' || typeof b.id === 'undefined') {
+	                return a.message_time - b.message_time;
+	            } else {
+	                return a.id - b.id;
+	            }
+	        });
+	        chat.message_log = message_log.filter(function (e, i, a) {
+	            if (i == 0) return true;
+	            var eid = e.id || e.uniq_client_id;
+	            var peid = a[i - 1].id || a[i - 1].uniq_client_id;
+	            if (eid != peid) return true;
+	            return false;
+	        });
+	    }
+	}
+	
+	function chatLeaveMember(new_state, action) {
+	    var chat = new_state.model.chats.find(function (e) {
+	        return e.id == action.payload.chat_id;
+	    });
+	    if (!chat) return;
+	    chat.member_list = chat.member_list.filter(function (e) {
+	        return e != action.payload.member_id;
+	    });
+	    var my_id = new_state.model.me.id;
+	    if (action.payload.member_id == my_id) chat.message_log = [];
 	}
 
 /***/ }

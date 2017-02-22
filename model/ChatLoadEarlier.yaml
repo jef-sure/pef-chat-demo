@@ -5,4 +5,4 @@ params:
   id: $id_to_chat
   load_before: $iso_timestamp
   limit: $limit
-model: Chat::set_name
+model: Chat::load_earlier

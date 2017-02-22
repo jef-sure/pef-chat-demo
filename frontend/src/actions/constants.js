@@ -12,7 +12,11 @@ export const CHAT_JOIN = 'chat join member';
 export const CHAT_DATA = 'chat data';
 export const CHAT_ADD_MESSAGE = 'CHAT ADD MESSAGE';
 export const CHAT_MESSAGE_FROM_SERVER = 'chat new message';
-export const CHAT_LEAVE = 'CHAT LEAVE';
+export const CHAT_SET_TITLE = 'chat set title';
+export const CHAT_DONT_LOAD_EARLIER = 'CHAT DONT LOAD EARLIER';
+export const CHAT_LOAD_EARLIER = 'CHAT LOAD EARLIER';
+export const CHAT_LEAVE = 'chat leave member';
+
 
 export const MESSAGE_MINE = 'MESSAGE MINE';
 export const MESSAGE_MINE_SENDING = 'MESSAGE MINE SENDING';

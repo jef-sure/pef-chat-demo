@@ -1,8 +1,9 @@
 drop table model_version;
 drop table member_auth;
+drop table chat_message;
 drop table chat_member;
 drop table theme_comment;
-drop table chat_message;
+drop table theme_member;
 drop table chat;
 drop table theme;
 drop table member;

@@ -64765,6 +64765,11 @@
 	    }
 	
 	    _createClass(ModalChat, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            this.name.focus();
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var _this2 = this;

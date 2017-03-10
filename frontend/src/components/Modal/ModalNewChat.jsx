@@ -17,6 +17,10 @@ class ModalChat extends React.Component {
         super(props);
     }
 
+    componentDidMount() {
+        this.name.focus();
+    }
+
     render() {
         const onCancel = () => {
             this.props.dispatch(modalCloseNewChat())

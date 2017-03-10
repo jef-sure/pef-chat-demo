@@ -2,9 +2,9 @@
 
 use FindBin;
 use lib "$FindBin::Bin/../app";
-use lib "/home/anton/git/pef-chat-demo/app";
-use lib "/home/anton/git/pef-front-psgi-dist/lib";
-use lib "/home/anton/git/dbix-struct-github/lib";
+#use lib "/home/anton/git/pef-chat-demo/app";
+#use lib "/home/anton/git/pef-front-psgi-dist/lib";
+#use lib "/home/anton/git/dbix-struct-github/lib";
 
 use ChatDemo::AppFrontConfig;
 use PEF::Front::Config;
@@ -25,8 +25,8 @@ $DBIx::Connector::Pool::Item::not_in_use_event = sub {
 	$_[0]->used_now;
 };
 my $pool = DBIx::Connector::Pool->new(
-	dsn        => "dbi:Pg:dbname=anton",
-	user       => "anton",
+	dsn        => "dbi:Pg:dbname=" . getpwuid($<),
+	user       => getpwuid($<),
 	password   => '',
 	initial    => 1,
 	keep_alive => 60,

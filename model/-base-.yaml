@@ -26,7 +26,8 @@ params:
     base: positive_integer
     filter: Chat::id_to_message
   chat_name: 
-    base: limit4_40str
+    min-size: 1
+    max-size: 40
     filter: [ s/</&lt;/g, s/>/&gt;/g ]
   chat_title:
     max-size: 500

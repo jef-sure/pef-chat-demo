@@ -18,6 +18,7 @@ sub make {
 		answer => 'Chat with such a name already exists'
 	} if $chch;
 	my $chat;
+	my $chat_data;
 	publish_to_model(
 		$context,
 		'chat-list',
@@ -28,22 +29,27 @@ sub make {
 				title    => $req->{title},
 				owner_id => $context->{member}->id
 			);
+			new_row(
+				'chat_member',
+				chat_id   => $chat->id,
+				member_id => $context->{member}->id
+			);
+			$chat->fetch;
+			$chat_data                = $chat->data;
+			$chat_data->{message_log} = [];
+			$chat_data->{member_list} = [$context->{member}->id];
 			subscribe_to_queue($context, 'chat::' . $chat->id, 0);
 		},
 		sub {
 			return +{
 				action => 'chat new',
-				params => {
-					id    => $chat->id,
-					name  => $req->{name},
-					title => $req->{title},
-				}
+				params => $chat_data
 			};
 		}
 	);
 	return {
 		result => "OK",
-		id     => $chat->id
+		%$chat_data
 	};
 }
 

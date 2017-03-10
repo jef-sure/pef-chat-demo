@@ -14,6 +14,7 @@ export function initialStateStore() {
             isHeaderOn: true,
             isNavOn: true,
             isChatMemberListOn: false,
+            activeModal: null
         },
         system: {
             headerText: 'PEF Front Websocket Chat Demo'

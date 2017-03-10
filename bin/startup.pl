@@ -10,6 +10,7 @@ use ChatDemo::AppFrontConfig;
 use PEF::Front::Config;
 use PEF::Front::WebSocket 'queue_server';
 use PEF::Front::Route;
+use PEF::Front::Preload;
 use DBIx::Connector::Pool;
 use DBIx::PgCoroAnyEvent;
 use DBIx::Struct (error_class => 'DBIx::Struct::Error::Hash');

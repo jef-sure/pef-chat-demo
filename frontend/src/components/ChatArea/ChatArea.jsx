@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import {DivFlexFixed, DivFlexRow, DivFlexStretchFill, DivFlexStretch} from '../Layout.jsx';
 import jpath from '../../lib/jpath';
 import {userColor} from '../../lib/user_color';
-import {chatJoin, sendChatMessage, setChatTitle, loadChatEarlier, leaveChat} from '../../actions/chatOps';
+import {chatJoin, sendChatMessage, setChatTitle, loadChatEarlier, leaveChat, destroyChat} from '../../actions/chatOps';
 import TextareaAutoSize from '../TextareaAutoSize.jsx';
 import InputOnClick from './InputOnClick.jsx';
 import Toggle from '../Toggle/Toggle.jsx';
@@ -13,6 +13,9 @@ import {toggleChatMemberList} from '../../actions/toggle';
 import * as Constants from '../../actions/constants';
 import {redirectLocation} from '../HashRouter.jsx';
 
+function coalesce(ptr, elem, otherwise) {
+    return ptr ? ptr[elem] : otherwise;
+}
 
 function mapStateToChat(state, props) {
     console.log("map to Chat props:", props);
@@ -29,15 +32,19 @@ function mapStateToChat(state, props) {
         isChatMemberListOn: state.visual.isChatMemberListOn,
         chat: chat,
         isNeedLoad: isNeedLoad,
-        message_log: chat.message_log,
-        member_list: chat.member_list,
-        title: chat.title,
+        message_log: coalesce(chat, "message_log", []),
+        member_list: coalesce(chat, "member_list", []),
+        title: coalesce(chat, "title", ''),
     };
 }
 /*
  If server says 'no such chat' or some another error -- it should be somehow processed
  */
 function checkWhetherToJoin(props) {
+    if (!props.chat) {
+        redirectLocation("/chat");
+        return;
+    }
     if (!props.isLoggedIn) return;
     const chat_id = props.id;
     if (props.isNeedLoad)
@@ -201,6 +208,13 @@ const Chat = connect(mapStateToChat)(class _Chat extends React.Component {
         redirectLocation("/chat");
     }
 
+    destroyChat() {
+        if (this.destroyChatCheck.checked) {
+            this.props.dispatch(destroyChat(this.props.chat.id));
+            redirectLocation("/chat");
+        }
+    }
+
     render() {
         if (this.props.isNeedLoad) {
             return <div className="container text-center">
@@ -220,14 +234,15 @@ const Chat = connect(mapStateToChat)(class _Chat extends React.Component {
         let maxHeight = intViewportHeight / 3;
         const {isChatMemberListOn, dispatch} = this.props;
         return <div className="main_work_area">
-            <DivFlexFixed>
+            <DivFlexFixed style={{height: "3em"}}>
                 <DivFlexRow>
                     <DivFlexStretch>
                         <InputOnClick
                             style={{
                                 paddingLeft: "5px",
                                 width: "100%",
-                                cursor: "default"
+                                cursor: "default",
+                                height: "3em"
                             }}
                             className="form-control"
                             value={this.props.title}
@@ -242,24 +257,31 @@ const Chat = connect(mapStateToChat)(class _Chat extends React.Component {
                         this.props.me.id != this.props.chat.owner_id
                             ? <DivFlexFixed>
                                 <button type="button" className="btn btn-danger" onClick={() => this.leaveChat()}>
-                                    Leave chat
+                                    Leave
                                 </button>
                             </DivFlexFixed>
-                            : <DivFlexFixed style={{
-                                paddingTop: 0,
-                                paddingBottom: 0,
-                            }} className="btn emergency">
+                            : <DivFlexFixed
+                                style={{
+                                    paddingTop: "0.12em",
+                                    paddingBottom: 0,
+                                }}
+                                className="btn emergency"
+                                onClick={() => this.destroyChat()}
+                            >
                                 <div style={{lineHeight: "1em"}}>
                                     <span style={{fontWeight: "bold"}}>🕱</span>
-                                    &nbsp;Destroy chat&nbsp;
+                                    &nbsp;Destroy&nbsp;
                                     <span style={{fontWeight: "bold"}}>🕱</span>
                                 </div>
-                                <div style={{transform: "scale(0.8)", lineHeight: "0.7em"}}>
+                                <div style={{transform: "scale(0.7)", lineHeight: "0.7em"}}>
                                     <input type="checkbox"
                                            ref={(r) => this.destroyChatCheck = r}
                                            id="destroyChatCheck"
+                                           onClick={(e) => e.stopPropagation()}
                                     />
-                                    <label htmlFor="destroyChatCheck" style={{marginBottom: 0}}>&nbsp;I'm sure</label>
+                                    <label htmlFor="destroyChatCheck" style={{marginBottom: 0}}
+                                           onClick={(e) => e.stopPropagation()}
+                                    >&nbsp;I'm sure</label>
                                 </div>
                             </DivFlexFixed>
                     }

@@ -13,8 +13,12 @@ import {
     chatSetTitle,
     chatDontLoadEarlier,
     chatLoadEarlier,
-    chatLeaveMember
+    chatLeaveMember,
+    chatDestroy,
+    chatNew
 } from './chatOps'
+
+import {modalOpenNewChat,modalCloseNewChat} from './modal';
 
 export default function reducer(state, action) {
     console.log('Reducer args: %o | %o', state, action);
@@ -80,6 +84,18 @@ export default function reducer(state, action) {
             break;
         case Constants.CHAT_LEAVE:
             chatLeaveMember(new_state, action);
+            break;
+        case Constants.CHAT_DESTROY:
+            chatDestroy(new_state, action);
+            break;
+        case Constants.CHAT_NEW:
+            chatNew(new_state, action);
+            break;
+        case Constants.MODAL_OPEN_NEW_CHAT:
+            modalOpenNewChat(new_state);
+            break;
+        case Constants.MODAL_CLOSE_NEW_CHAT:
+            modalCloseNewChat(new_state);
             break;
     }
     return new_state;

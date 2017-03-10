@@ -26,6 +26,8 @@ import Main from './components/Main.jsx';
 
 import reducer from './reducers/reducer';
 
+import ModalManager from './components/Modal/ModalManager.jsx';
+
 global.markdown = markdownFactory({
     html: false,        // Enable HTML tags in source
     xhtmlOut: false,        // Use '/' to close single tags (<br />).
@@ -117,7 +119,7 @@ function websocketOnOpen(ws) {
         } else {
             lastWsError = response.body.answer;
             store.dispatch(consoleLog('error', response.body.answer));
-            if(response.body.result !== 'OK') {
+            if (response.body.result !== 'OK') {
                 websocketOnNotOk(response)
             }
         }
@@ -142,7 +144,7 @@ function websocketOnMessage(message) {
 
 function websocketOnNotOk(message) {
     console.log("not ok message: ", message);
-    if(message.body.result === 'AUTH') {
+    if (message.body.result === 'AUTH') {
         store.dispatch(uninitializeModel());
         store.dispatch(consoleLog('error', 'User is logged out'));
     }
@@ -166,9 +168,13 @@ store.subscribe(watchLocation((newVal, oldVal, objectPath) => {
 
 store.dispatch({type: "app/INIT"});
 
+
 ReactDOM.render(
     <Provider store={store}>
-        <Main />
+        <div className="full_height">
+            <ModalManager/>
+            <Main />
+        </div>
     </Provider>
     ,
     document.getElementById("app")

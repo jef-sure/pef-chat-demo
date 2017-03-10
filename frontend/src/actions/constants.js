@@ -16,11 +16,16 @@ export const CHAT_SET_TITLE = 'chat set title';
 export const CHAT_DONT_LOAD_EARLIER = 'CHAT DONT LOAD EARLIER';
 export const CHAT_LOAD_EARLIER = 'CHAT LOAD EARLIER';
 export const CHAT_LEAVE = 'chat leave member';
+export const CHAT_DESTROY = 'chat delete';
+export const CHAT_NEW = 'chat new';
 
 
 export const MESSAGE_MINE = 'MESSAGE MINE';
 export const MESSAGE_MINE_SENDING = 'MESSAGE MINE SENDING';
 export const MESSAGE_RECEIVED = 'MESSAGE RECEIVED';
+
+export const MODAL_OPEN_NEW_CHAT = 'MODAL OPEN NEW CHAT';
+export const MODAL_CLOSE_NEW_CHAT = 'MODAL CLOSE NEW CHAT';
 
 
 export const THEME_JOIN = 'THEME JOIN';

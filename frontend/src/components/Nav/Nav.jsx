@@ -4,21 +4,23 @@ import {connect} from 'react-redux';
 import {measureTextWidth} from '../../lib/measure_text_width';
 import {DivFlexColumn, DivFlexFixed, DivFlexRow, DivFlexStretch, DivPaddingFill} from '../Layout.jsx';
 import {Link, LocationMatch} from '../HashRouter.jsx';
+import {modalOpenNewChat} from '../../actions/modal';
 
 function navSubItems(model, key, path, selected) {
     return <DivFlexStretch className="vscroll_auto">
         <ul className="main_nav_sub_list">
-            <li className="list_no_wraps_no_discs">{
+            {
                 model.map((item, index) =>
-
-                    <Link key={index + (selected && item.id == selected ? "selected" : "item")}
-                          className={selected && item.id == selected ? "main_nav_selected_sub_item" : "main_nav_sub_item"}
-                          to={path + "/" + item.id}>
-                        {item[key]}
-                    </Link>
+                    <li className="list_no_wraps_no_discs"
+                        key={index + (selected && item.id == selected ? "selected" : "item")}>
+                        <Link
+                            className={selected && item.id == selected ? "main_nav_selected_sub_item" : "main_nav_sub_item"}
+                            to={path + "/" + item.id}>
+                            {item[key]}
+                        </Link>
+                    </li>
                 )
             }
-            </li>
         </ul>
     </DivFlexStretch>;
 }
@@ -26,12 +28,14 @@ function navSubItems(model, key, path, selected) {
 const navStruct = [
     {
         name: "Chats",
+        addNew: modalOpenNewChat,
         path: "/chat",
         modelKey: "chats",
         titleKey: "name",
     },
     {
         name: "Themes",
+        addNew: false,
         path: "/theme",
         modelKey: "themes",
         titleKey: "subject",
@@ -44,19 +48,35 @@ const navStruct = [
     },
 ];
 
-const NavSelected = (model, index) => ({id}) => <DivFlexColumn className="flex_stretch"
-                                                               key={(1 + index) + "selected"}>
+const NavSelected = (modelSrc, index, dispatchProvider) => ({id}) => <DivFlexColumn className="flex_stretch"
+                                                                                    key={(1 + index) + "selected"}>
         <ul className="main_nav_list flex_fixed">
-            <li><Link to={navStruct[index].path} className="main_nav_section_selected">{navStruct[index].name}</Link></li>
+            <li>
+                <Link to={navStruct[index].path}
+                      className="main_nav_section_selected">{navStruct[index].name}
+                    &nbsp;
+                    {navStruct[index].addNew ?
+                        <span className="badge"
+                              onClick={() => dispatchProvider()(navStruct[index].addNew())}>+</span> : null}
+                </Link>
+            </li>
         </ul>
-        {navSubItems(model, navStruct[index].titleKey, navStruct[index].path, id)}
+        {navSubItems(modelSrc(), navStruct[index].titleKey, navStruct[index].path, id)}
     </DivFlexColumn>
     ;
 
-const NavClear = (index) => () =>
+const NavClear = (index, dispatchProvider) => () =>
         <DivFlexFixed key={1 + index}>
             <ul className="main_nav_list flex_fixed">
-                <li><Link to={navStruct[index].path} className="main_nav_section_next_1">{navStruct[index].name}</Link></li>
+                <li>
+                    <Link to={navStruct[index].path}
+                          className="main_nav_section_next_1">{navStruct[index].name}
+                        &nbsp;
+                        {navStruct[index].addNew ?
+                            <span className="badge"
+                                  onClick={() => dispatchProvider()(navStruct[index].addNew())}>+</span> : null}
+                    </Link>
+                </li>
             </ul>
         </DivFlexFixed>
     ;
@@ -86,12 +106,11 @@ class Nav extends React.Component {
     }
 
     recalcMinWidth() {
-        const {model} = this.props;
         for (let ns of navStruct) {
-            this.maxNavString = model[ns.modelKey].reduce(
-                (a, c) => c[ns.titleKey].length > a.length ? c[ns.titleKey] : a,
-                this.maxNavStringInitial
-            ) + "WWWWW";
+            this.maxNavString = this.props[ns.modelKey].reduce(
+                    (a, c) => c[ns.titleKey].length > a.length ? c[ns.titleKey] : a,
+                    this.maxNavStringInitial
+                ) + "WWWWW";
         }
         this.minNavWidth = measureTextWidth(this.maxNavString, this.mainNav);
         this.minNavWidth = Math.min(this.minNavWidth, document.documentElement.clientWidth / 3);
@@ -107,15 +126,15 @@ class Nav extends React.Component {
     }
 
     render() {
-        const {model} = this.props;
+        const dispatchProvider = () => this.props.dispatch;
         return <DivFlexFixed className="relative" refProp={e => this.mainNav = e}>
             <DivPaddingFill>
                 <DivFlexColumn className="full_height">
                     {
                         navStruct.map((item, index) =>
                             <LocationMatch if={item.path + "(/:id)"}
-                                           then={NavSelected(model[item.modelKey], index)}
-                                           else={NavClear(index)}
+                                           then={NavSelected(() => this.props[item.modelKey], index, dispatchProvider)}
+                                           else={NavClear(index, dispatchProvider)}
                                            key={index}
                             />
                         )
@@ -128,7 +147,10 @@ class Nav extends React.Component {
 
 function stateToNav(state) {
     return {
-        model: state.model
+        chats: state.model.chats,
+        members: state.model.members,
+        themes: state.model.themes,
+        location: state.location
     }
 }
 

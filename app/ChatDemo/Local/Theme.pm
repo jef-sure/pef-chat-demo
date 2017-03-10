@@ -320,6 +320,7 @@ sub leave {
 			}
 		}
 	);
+	return {result => "OK"};
 }
 
 1;

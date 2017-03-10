@@ -3,6 +3,7 @@
 import {parseDate} from '../lib/dateformat';
 import {convertMessageFromServer} from '../lib/messageFromServer';
 import * as Constants from '../actions/constants';
+import {redirectLocation} from '../components/HashRouter.jsx';
 
 export function chatJoinMember(new_state, action) {
     let chat = new_state.model.chats.find((e) => e.id == action.payload.chat_id);
@@ -29,6 +30,23 @@ export function chatData(new_state, action) {
         new_state.model.chats[chatIndex] = action.payload;
     }
 }
+
+export function chatNew(new_state, action) {
+    let chatIndex = new_state.model.chats.findIndex((e) => e.id == action.payload.id);
+    if (chatIndex < 0) {
+        const my_id = new_state.model.me.id;
+        action.payload.canHaveEarlier = false;
+        action.payload.created = parseDate(action.payload.created);
+        new_state.model.chats = Object.assign([], new_state.model.chats);
+        new_state.model.chats.push(action.payload);
+        if (action.payload.owner_id == my_id) {
+            new_state.model.me.chats.push(action.payload.id);
+        }
+    }
+    if (action.meta)
+        redirectLocation(action.meta);
+}
+
 // payload: {
 //     uniq_client_id: uniqClientId,
 //         message: message,
@@ -118,8 +136,17 @@ export function chatLeaveMember(new_state, action) {
     if (!chat) return;
     chat.member_list = chat.member_list.filter((e) => e != action.payload.member_id);
     const my_id = new_state.model.me.id;
-    if(action.payload.member_id == my_id)
+    if (action.payload.member_id == my_id)
         chat.message_log = [];
+}
+
+export function chatDestroy(new_state, action) {
+    let chat = new_state.model.chats.find((e) => e.id == action.payload.id);
+    if (chat < 0) return;
+    new_state.model.chats = new_state.model.chats.filter((e) => e.id != action.payload.id);
+    if (new_state.model.me.chats.find((e) => e.id == action.payload.id)) {
+        new_state.model.me.chats = new_state.model.me.chats.filter((e) => e != action.payload.id);
+    }
 }
 
 

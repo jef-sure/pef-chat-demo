@@ -53,4 +53,12 @@ class MainArea extends React.Component {
     }
 }
 
-export default connect()(MainArea);
+function stateToNav(state) {
+    return {
+        chats: state.model.chats,
+        members: state.model.members,
+        themes: state.model.themes
+    }
+}
+
+export default connect(stateToNav)(MainArea);

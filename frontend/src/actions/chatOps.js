@@ -5,6 +5,7 @@
 import wsAjax from '../lib/wsAjax';
 import {toServerDate} from '../lib/dateformat';
 import * as Constants from './constants';
+import {modalCloseNewChat} from './modal';
 
 export function chatJoin(chat_id) {
     let ws = new wsAjax();
@@ -68,12 +69,6 @@ export function setChatTitle(chat_id, title) {
 export function loadChatEarlier(chat_id, before) {
     let ws = new wsAjax();
     return dispatch => {
-        // dispatch({
-        //     type: Constants.CHAT_DONT_LOAD_EARLIER,
-        //     payload: {
-        //         chat_id: chat_id
-        //     }
-        // });
         ws.send({
                 ajax: {
                     method: "chat load earlier",
@@ -103,8 +98,46 @@ export function leaveChat(chat_id) {
             ajax: {
                 method: "chat leave member",
                 parameters: {
-                    id: chat_id                },
+                    id: chat_id
+                },
             }
         });
     }
 }
+
+export function destroyChat(chat_id) {
+    let ws = new wsAjax();
+    return () => {
+        ws.send({
+            ajax: {
+                method: "chat delete",
+                parameters: {
+                    id: chat_id
+                },
+            }
+        });
+    }
+}
+
+export function makeChat(name, title) {
+    let ws = new wsAjax();
+    return dispatch => {
+        dispatch(modalCloseNewChat());
+        ws.send({
+            ajax: {
+                method: "chat make",
+                parameters: {
+                    name: name,
+                    title: title
+                },
+            }
+        }, (response) => {
+            dispatch({
+                type: Constants.CHAT_NEW,
+                payload: response.body,
+                meta: "/chat/" + response.body.id
+            });
+        });
+    }
+}
+
